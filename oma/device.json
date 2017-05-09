@@ -1,0 +1,79 @@
+{
+    "manufacturer": {
+        "type": "String",
+        "id": 0
+    },
+    "deviceType": {
+        "type": "String",
+        "id": 17
+    },
+    "modelNumber": {
+        "type": "String",
+        "id": 1
+    },
+    "serialNumber": {
+        "type": "String",
+        "id": 2
+    },
+    "hardwareVer": {
+        "type": "String",
+        "id": 18
+    },
+    "firmwareVer": {
+        "type": "String",
+        "id": 3
+    },
+    "softwareVer": {
+        "type": "String",
+        "id": 19
+    },
+    "powerSrcs": {
+        "type": ["Number"],
+        "id": 6
+    },
+    "srcVoltage": {
+        "type": ["Number"],
+        "id": 7
+        },
+    "srcCurrent": {
+        "type": ["Number"],
+        "id": 8
+    },
+    "batteryLevel": {
+        "type": "Number",
+        "id": 9
+    },
+    "memoryFree": {
+        "type": "Number",
+        "id": 10
+    },
+    "errorCode": {
+        "type": ["Number"],
+        "id": 11
+        },
+    "currentTime": {
+        "type": "Number",
+        "id": 13
+    },
+    "utcOffset": {
+        "type": "String",
+        "id": 14
+    },
+    "timeZone": {
+        "type": "String",
+        "id": 15
+    },
+    "binding": {
+        "type": "String",
+        "id": 16,
+        "enum": [
+            "U",
+            "UQ",
+            "S",
+            "SQ",
+            "US",
+            "UQS"
+        ]
+  }
+}
+
