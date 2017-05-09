@@ -1,0 +1,48 @@
+{
+    "uri": {
+        "type": "String",
+        "id": 0,
+        "required": true
+    },
+    "bootstrap": {
+        "type": "Boolean",
+        "id": 1,
+        "required": true
+    },
+    "mode": {
+        "type": "Number",
+        "id": 2,
+        "enum": [
+            0,
+            1,
+            2,
+            3
+        ],
+        "required": true
+    },
+    "clientCert": {
+        "type": "Buffer",
+        "id": 3,
+        "required": true
+    },
+    "serverId": {
+        "type": "Number",
+        "id": 10,
+        "range": {
+            "min": 1,
+            "max": 65535
+        },
+        "required": true
+    },
+    "serverCert": {
+        "type": "Buffer",
+        "id": 4,
+        "required": false
+    },
+    "secretKey": {
+        "type": "Buffer",
+        "id": 5,
+        "required": true
+    }
+}
+
