@@ -26,37 +26,51 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    Schema = require('../../../').Schema;
+    schema = require('../../../lib/services/shared/schema');
 
 describe('LWM2M Object Schema', function() {
+  describe('validateSchema', function() {
 
-  describe('constructor', function() {
-    it('should throw when a resource definition is not correct', function() {
+    it('should not throw on a valid schema', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: { bad: 'value' }
+        b: { type: Number, id: 1 },
+        c: { type: [Boolean], id: 2 },
+        d: { type: Buffer, id:3 }
       };
 
-      function schema() { 
-        new Schema('test', def);
+      function validate() {
+        return schema.validateSchema(def);
       }
       
-      schema.should.throw(TypeError);
+      validate.should.not.throw();
     });
 
-    it('should throw when presented with invalid resource type', function() {
+    it('should throw on invalid types', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: { type: RegExp, id: 1 }
+        b: { type: Date, id: 1 }
       };
 
-      function schema() { 
-        new Schema('test', def);
+      function validate() {
+        return schema.validateSchema(def);
       }
       
-      schema.should.throw(TypeError);
+      validate.should.throw(TypeError);
     });
 
+    it('should throw on invalid resources', function() {
+      var def = {
+        a: { type: String, id: 0 },
+        b: 'foo'
+      };
+
+      function validate() {
+        return schema.validateSchema(def);
+      }
+      
+      validate.should.throw(TypeError);
+    });
   });
 
   describe('validate', function() {
@@ -67,47 +81,27 @@ describe('LWM2M Object Schema', function() {
         b: { type: Number, id: 1 }
       };
 
-      var schema = new Schema('test', def);
-
       function validate() {
-        return schema.validate({ a: 'foo', b: 3 });
+        return schema.validate({ a: 'foo', b: 3 }, def);
       }
       
-      validate.should.not.throw(TypeError);
-    });
-
-    it('should be ok when an object uses Object IDs as keys', function() {
-      var def = {
-        a: { type: String, id: 0 },
-        b: { type: Number, id: 1 }
-      };
-
-      var schema = new Schema('test', def);
-
-      function validate() {
-        return schema.validate({ 0: 'foo', 1: 3 });
-      }
-      
-      validate.should.not.throw(TypeError);
+      validate.should.not.throw();
     });
 
     it('should throw when an object does not match schema', function() {
       var def = {
         a: { type: String, id: 0 },
         b: { type: Number, id: 1 },
-        c: [{ type: Boolean, id: 2 }]
       };
 
-      var schema = new Schema('test', def);
-
       function validate() {
-        return schema.validate({ a: 'foo', b: false });
+        return schema.validate({ a: 'foo', b: false }, def);
       }
       
       validate.should.throw(TypeError);
 
       function validate2() {
-        return schema.validate({ a: 'foo', c: [1,2,3] });
+        return schema.validate({ a: 'foo', b: [1,2,3] }, def);
       }
       
       validate2.should.throw(TypeError);
@@ -116,13 +110,12 @@ describe('LWM2M Object Schema', function() {
     it('should throw when missing a required resource', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: { type: Number, id: 1, required: true }
+        b: { type: Number, id: 1, required: true },
+        c: { type: Boolean, id: 1 }
       };
 
-      var schema = new Schema('test', def);
-
       function validate() {
-        return schema.validate({ a: 'foo' });
+        return schema.validate({ a: 'foo', c: false }, def);
       }
       
       validate.should.throw(TypeError);
@@ -133,16 +126,13 @@ describe('LWM2M Object Schema', function() {
         b: { type: Number, id: 1 },
       };
 
-
-      var schema = new Schema('test', def);
-
-      schema.range('b', { 
+      def.b.range = { 
         min: 1, 
         max: 10 
-      });
+      };
 
       function validate() {
-        return schema.validate({ b: 11 });
+        return schema.validate({ b: 11 }, def);
       }
       
       validate.should.throw(TypeError);
@@ -154,12 +144,14 @@ describe('LWM2M Object Schema', function() {
         a: { type: String, id: 0 },
       };
 
-      var schema = new Schema('test', def);
-
-      schema.enum('a', ['bar', 'baz', 'qux']);
+      def.a.enum = [
+        'bar', 
+        'baz', 
+        'qux'
+      ];
 
       function validate() {
-        return schema.validate({ a: 'foo' });
+        return schema.validate({ a: 'foo' }, def);
       }
       
       validate.should.throw(TypeError);

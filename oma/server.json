@@ -1,0 +1,34 @@
+{
+    "serverId": {
+        "type": "Number",
+        "id": 0,
+        "range": {
+            "min": 1,
+            "max": 65535
+        },
+        "required": true
+    },
+    "lifetime": {
+        "type": "Number",
+        "id": 1,
+        "required": true
+    },
+    "notifStoring": {
+        "type": "Boolean",
+        "id": 6,
+        "required": true
+    },
+    "binding": {
+        "type": "String",
+        "id": 7,
+        "enum": [
+            "U",
+            "UQ",
+            "S",
+            "SQ",
+            "US",
+            "UQS"
+        ],
+        "required": true
+    }
+}
