@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/telefonicaid/lwm2m-node-lib/issues"
   },
-  "main": "lib/lwm2m-node-lib",
+  "main": "lib",
   "engines": {
     "node": ">=0.10.8"
   },
