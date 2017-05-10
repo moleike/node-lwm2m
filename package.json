@@ -1,18 +1,18 @@
 {
-  "name": "lwm2m-node-lib",
+  "name": "lwm2m",
   "description": "Library for developing servers and client of OMA Lightweight M2M",
-  "version": "1.0.0",
-  "homepage": "https://github.com/telefonicaid/lwm2m-node-lib",
+  "version": "0.0.0",
+  "homepage": "https://github.com/muoren/node-lwm2m",
   "author": {
-    "name": "Daniel Moran",
-    "email": "daniel.moranjimenez@telefonica.com"
+    "name": "Alexandre Moreno",
+    "email": "alex_moreno@tutk.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/telefonicaid/lwm2m-node-lib"
+    "url": "git://github.com/muoren/node-lwm2m"
   },
   "bugs": {
-    "url": "https://github.com/telefonicaid/lwm2m-node-lib/issues"
+    "url": "https://github.com/muoren/node-lwm2m/issues"
   },
   "main": "lib",
   "engines": {
