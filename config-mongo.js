@@ -7,7 +7,6 @@ config.server = {
     lifetimeCheckInterval: 1000,        // Minimum interval between lifetime checks in ms
     udpWindow: 100,
     defaultType: 'Device',
-    logLevel: 'FATAL',
     ipProtocol: 'udp4',
     serverProtocol: 'udp4',
     deviceRegistry: {
@@ -15,26 +14,7 @@ config.server = {
         host: 'localhost',
         port: '27017',
         db: 'lwtm2m'
-    },
-    formats: [
-        {
-            name: 'application-vnd-oma-lwm2m/text',
-            value: 1541
-        },
-        {
-            name: 'application-vnd-oma-lwm2m/tlv',
-            value: 1542
-        },
-        {
-            name: 'application-vnd-oma-lwm2m/json',
-            value: 1543
-        },
-        {
-            name: 'application-vnd-oma-lwm2m/opaque',
-            value: 1544
-        }
-    ],
-    writeFormat: 'application-vnd-oma-lwm2m/text'
+    }
 };
 
 // Configuration of the LWTM2M Client
@@ -42,19 +22,11 @@ config.server = {
 config.client = {
     lifetime: '85671',
     version: '1.0',
-    logLevel: 'FATAL',
     observe: {
         period: 3000
     },
     ipProtocol: 'udp4',
-    serverProtocol: 'udp4',
-    formats: [
-        {
-            name: 'lightweightm2m/text',
-            value: 1541
-        }
-    ],
-    writeFormat: 'lightweightm2m/text'
+    serverProtocol: 'udp4'
 };
 
 module.exports = config;
