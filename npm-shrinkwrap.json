@@ -1,6 +1,6 @@
 {
   "name": "lwm2m-node-lib",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "async": {
       "version": "1.5.2",
