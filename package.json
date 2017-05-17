@@ -34,6 +34,8 @@
     "mongodb": "2.1.7",
     "mongoose": "4.4.3",
     "mongoose-auto-increment": "5.0.1",
+    "object-assign": "^4.1.1",
+    "setprototypeof": "^1.0.3",
     "underscore": "1.7.0"
   },
   "devDependencies": {
