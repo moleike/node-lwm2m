@@ -35,8 +35,9 @@
     "mongoose": "4.4.3",
     "mongoose-auto-increment": "5.0.1",
     "object-assign": "^4.1.1",
-    "setprototypeof": "^1.0.3",
-    "underscore": "1.7.0"
+    "object.entries": "^1.0.4",
+    "object.values": "^1.0.4",
+    "setprototypeof": "^1.0.3"
   },
   "devDependencies": {
     "grunt": "0.4.5",
