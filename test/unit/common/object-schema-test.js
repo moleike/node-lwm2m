@@ -26,7 +26,7 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    schema = require('../../../lib/services/shared/schema');
+    schema = require('../../../lib/schema');
 
 describe('LWM2M Object Schema', function() {
   describe('validateSchema', function() {

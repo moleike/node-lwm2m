@@ -26,7 +26,7 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    senml = require('../../../lib/services/shared/senml'),
+    senml = require('../../../lib/senml'),
     deviceSchema = require('../../../oma/device.json');
 
 var object = { 
