@@ -26,7 +26,7 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    tlv = require('../../../lib/services/shared/tlv'),
+    tlv = require('../../../lib/tlv'),
     deviceSchema = require('../../../oma/device');
 
 var object = { 
