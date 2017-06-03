@@ -27,7 +27,8 @@
 
 var should = require('should'), // jshint ignore:line
     senml = require('../../../lib/senml'),
-    deviceSchema = require('../../../oma/device.json');
+    Schema = require('../../../lib/schema'),
+    deviceSchema = Schema(require('../../../oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',
@@ -82,7 +83,7 @@ describe('De/serializing LWM2M Objects from/into JSON', function() {
 
     it('should strictly return matching resources from schema', function() {
       var dev = senml.parse(payload, deviceSchema),
-          keys = Object.keys(deviceSchema);
+          keys = Object.keys(deviceSchema.resources);
 
       Object.keys(dev).should.matchEach(function(it) { 
         return it.should.be.oneOf(keys);
