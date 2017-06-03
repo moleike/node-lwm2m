@@ -281,7 +281,7 @@ var schema = new Schema({
 ```
 
   
-  See [oma][oma] directory for examples of definitions.
+  See [oma](oma) directory for examples of definitions.
 
 ## Schema.validate(obj:Object)
 
