@@ -8,7 +8,7 @@
     "noempty": true,
     "quotmark": "single",
     "undef": true,
-    "unused": true,
+    "unused": false,
     "trailing": true,
     "maxparams": 7,
     "maxdepth": 4,
@@ -16,7 +16,6 @@
     "maxlen": 120,
     "node": true,
     "expr": true,
-    "unused": "vars",
     "globals": {
         "describe":true,
         "it": true,
