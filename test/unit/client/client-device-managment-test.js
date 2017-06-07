@@ -29,7 +29,7 @@ var should = require('should'),
     lwm2mServer = require('../../../').server,
     lwm2mClient = require('../../../').client,
     config = require('../../../config'),
-    memoryRegistry = require('../../../lib/services/server/inMemoryDeviceRegistry'),
+    memoryRegistry = require('../../../lib/server/inMemoryDeviceRegistry'),
     localhost,
     testInfo = {};
 

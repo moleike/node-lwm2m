@@ -28,7 +28,7 @@
 var should = require('should'), // jshint ignore:line
     tlv = require('../../../lib/tlv'),
     Schema = require('../../../lib/schema'),
-    deviceSchema = Schema(require('../../../oma/device'));
+    deviceSchema = new Schema(require('../../../oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',
