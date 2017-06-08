@@ -37,6 +37,7 @@
     "object.assign": "^4.0.4",
     "object.entries": "^1.0.4",
     "object.values": "^1.0.4",
+    "readable-stream": "^2.2.11",
     "setprototypeof": "^1.0.3"
   },
   "devDependencies": {

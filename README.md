@@ -30,7 +30,9 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
   - [`discover()`](#discoverepstring-pathstring-callbackfunction)
   - [`create()`](#createepstring-pathstring-valueobjectstringnumberbuffer-optionsobject-callbackfunction)
   - [`remove()`](#removeepstring-pathstring-callbackfunction)
-  
+  - [`observe()`](#observeepstring-pathstring-callbackfunction)
+  - [`cancel()`](#cancelepstring-pathstring-callbackfunction)
+
 ## Schemas
 
   - [`Schema()`](#schemadefinitionsobject)
@@ -198,6 +200,33 @@ server.writeAttributes('dev0', '3303/0/5700', attr, function(err, res) {
 ## remove(ep:String, path:String, callback:Function)
 
   Deletes the LWM2M Object instance in `path` of endpoint `ep`
+
+## observe(ep:String, path:String, callback:Function)
+
+  Get notified of changes in `path` of device with endpoint name `ep`. 
+  The notification behaviour, e.g. periodic or event-triggered reporting, is configured with the 
+  `writeAttributes` method. The callback is given the two arguments `(err, stream)`, 
+  where `stream` is a `Readable Stream`. To stop receiving notifications call
+  `cancel()` on the same `ep` and `path` and `close()` the stream.
+  
+  Example:
+    
+```js
+server.observe('dev0', '/1024/10/1', function(err, stream) {
+  stream.on('data', function(value) {
+    console.log('new value %s', value);
+  });
+  
+  stream.on('end', function() {
+    console.log('stopped observing');
+  });
+});
+```
+
+## cancel(ep:String, path:String, callback:Function)
+
+  Cancel an observation for `path` of device `ep`.
+  
   
 ---
 
