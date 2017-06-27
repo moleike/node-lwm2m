@@ -1,0 +1,33 @@
+{
+    "latitude": {
+        "type": "Number",
+        "id": 0,
+        "required": true
+    },
+    "longitude": {
+        "type": "Number",
+        "id": 1,
+        "required": true
+    },
+    "altitude": {
+        "type": "Number",
+        "id": 2
+    },
+    "radius": {
+        "type": "Number",
+        "id": 3
+    },
+    "velocity": {
+        "type": "Buffer",
+        "id": 4
+    },
+    "timestamp": {
+        "type": "Number",
+        "id": 5,
+        "required": true
+    },
+    "speed": {
+        "type": "Number",
+        "id": 6
+    }
+}
