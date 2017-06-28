@@ -41,7 +41,7 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
 ## createServer(options:Object)
 
   Server constructor.
-  
+
   Options:
   
   - `lifetimeCheckInterval`: time in ms to purge a device from the registry if it didn't update it's registration,
@@ -49,6 +49,7 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
   - `type`: indicates if the server should create IPv4 connections (udp4) or IPv6 connections (udp6). Defaults to udp6.
   - `deviceRegistry`: specifies a MongoDB connection. If not provided will run an in-memory registry.
   - `schemas`: default schemas to use.
+  - `piggybackReplyMs`: set the number of milliseconds to wait for a piggyback response. Default 50.
   
   Events:
   
@@ -73,37 +74,25 @@ var server = lwm2m.createServer({
     '/3': lwm2m.Schema(require('lwm2m/oma/device.json')),
   }
 });
-```
+ 
+server.on('register', function(params, payload, accept) {
+  console.log('endpoint %s contains %s', params.ep, payload);
+  accept();
+});
 
+// the default CoAP port is 5683
+server.listen(function() {
+
+  server.read('dev0', /3/0, callback(err, val) {
+    console.log(val.manufacturer);
+  });
+})
+```
   
-```js
- server.on('error', function(err) {
-   throw err;
- });
-```
-
-  
-```js
- server.on('close', function() {
-   console.log('server finished');
- })
-```
-
-  
-```js
- server.on('register', registrationHandler)
- server.on('update', updateHandler)
- server.on('unregister', unregistrationHandler)
-```
-
-  
-```js
- server.listen(port);
-```
-
 ## listen(port:Number)
 
-  Start listening for connections
+  Start listening for connections, default port is 5683. This function
+  is inherited from [node-coap](https://github.com/mcollina/node-coap).
 
 
 ## read(ep:String, path:String, [options]:Object, callback:Function)
@@ -203,11 +192,11 @@ server.writeAttributes('dev0', '3303/0/5700', attr, function(err, res) {
 
 ## observe(ep:String, path:String, callback:Function)
 
-  Get notified of changes in `path` of device with endpoint name `ep`. 
-  The notification behaviour, e.g. periodic or event-triggered reporting, is configured with the 
-  `writeAttributes` method. The callback is given the two arguments `(err, stream)`, 
-  where `stream` is a `Readable Stream`. To stop receiving notifications call
-  `cancel()` on the same `ep` and `path` and `close()` the stream.
+ Observe changes in `path` of device with endpoint name `ep`. 
+ The notification behaviour, e.g. periodic or event-triggered reporting, is configured with the 
+ `writeAttributes` method. The callback is given the two arguments `(err, stream)`, 
+ where `stream` is a `Readable Stream`. To stop receiving notifications `close()` the stream
+ and (optionally) call `cancel()` on the same `ep` and `path` and .
   
   Example:
     
