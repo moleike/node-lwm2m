@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 Alexandre Moreno <alex_moreno@tutk.com>
  * Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
  *
  * This file is part of iotagent-lwm2m-lib
@@ -23,138 +24,185 @@
 
 'use strict';
 
-var libLwm2m2 = require('../../../').server,
-    coap = require('coap'),
-    Readable = require('stream').Readable,
-    config = require('../../../config'),
-    utils = require('./../testUtils'),
-    should = require('should'),
-    localhost,
-    testInfo = {};
+var should = require('should');
+var lwm2m = require('../../../');
+var coap = require('coap');
+var Readable = require('stream').Readable;
+var port = 5683;
+var server;
+var payload = '</1>,</2>,</3>,</4>,</5>';
 
-describe('Client registration interface', function() {
-    beforeEach(function (done) {
-        if (config.server.ipProtocol === 'udp6') {
-            localhost = '::1';
-        } else {
-            localhost = '127.0.0.1';
-        }
+describe('Client registration', function() {
 
-        config.server.type = 'mongodb';
-        libLwm2m2.start(config.server, function (error, srvInfo) {
-            testInfo.serverInfo = srvInfo;
-            done();
-        });
+  beforeEach(function (done) {
+    server = lwm2m.createServer({ type: 'udp4' });
+    server.on('error', done);
+    server.listen(port, done);
+  });
+
+  afterEach(function(done) {
+    server.close(done);
+  });
+
+  describe('when missing endpoint name in request', function() {
+    it('should fail with a 4.00 Bad Request', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'lt=86400&lwm2m=1.0&b=U'
+      });
+
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.00');
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+    });
+  });
+
+  describe('when missing lifetime name in request', function () {
+    it('should return a 2.01 Created', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lwm2m=1.0&b=U'
+      });
+
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+    });
+  });
+
+  describe('when a valid request', function () {
+    it('should return a 2.01 Created', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
 
-    afterEach(function(done) {
-        delete config.server.type;
-        libLwm2m2.stop(testInfo.serverInfo, done);
+    it('should emit register event with query params', function (done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+      });
+      var query = {};
+      var payload;
+
+      server.on('register', function(params, accept) {
+        query = params;
+        payload = params.payload;
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        query.should.have.properties(['ep', 'lt', 'lwm2m', 'b']);
+        payload.should.be.a.String();
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
 
-    describe('When a client registration request doesn\'t indicate a endpoint name arrives', function() {
-        var requestUrl =  {
-                host: 'localhost',
-                port: config.server.port,
-                method: 'POST',
-                pathname: '/rd',
-                query: 'lt=86400&lwm2m=1.0&b=U'
-            },
-            payload = '</1>, </2>, </3>, </4>, </5>';
+    it('should set Location-Path Option', function (done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+      });
 
-        it('should fail with a 4.00 Bad Request', utils.checkCode(testInfo, requestUrl, payload, '4.00'));
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.options.length.should.equal(1);
+        res.options[0].name.should.equal('Location-Path');
+        res.options[0].value.should.match(/rd\/.*/);
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
-    describe('When a client registration requests doesn\'t indicate a lifetime arrives', function () {
-        var requestUrl =  {
-                host: 'localhost',
-                port: config.server.port,
-                method: 'POST',
-                pathname: '/rd',
-                query: 'ep=ROOM001&lwm2m=1.0&b=U'
-            },
-            payload = '</1>, </2>, </3>, </4>, </5>';
+  });
 
+  describe('when a valid request but unknown endpoint', function () {
+    it('should fail with a 4.00 Bad Request', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+      });
 
-        it('should return a 2.01 OK (as it is optional)', utils.checkCode(testInfo, requestUrl, payload, '2.01'));
+      server.on('register', function(params, accept) {
+        accept(new Error('unknown'));
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.00');
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+
     });
-    describe('When a client registration requests doesn\'t indicate a binding arrives', function () {
-        var requestUrl =  {
-                host: 'localhost',
-                port: config.server.port,
-                method: 'POST',
-                pathname: '/rd',
-                query: 'ep=ROOM001&lt=86400&lwm2m=1.0'
-            },
-            payload = '</1>, </2>, </3>, </4>, </5>';
+  });
 
-
-        it('should return a 2.01 OK (as it is optional)', utils.checkCode(testInfo, requestUrl, payload, '2.01'));
-    });
-    describe('When a correct client registration requests arrives', function () {
-        var requestUrl =  {
-                host: localhost,
-                port: config.server.port,
-                method: 'POST',
-                pathname: '/rd',
-                query: 'ep=ROOM001&lt=86400&lwm2m=1.0&b=U'
-            },
-            payload = '</1>, </2>, </3>, </4>, </5>';
-
-        it('should return a 2.01 Created code', utils.checkCode(testInfo, requestUrl, payload, '2.01'));
-
-        it('should invoke the "registration" handler with the parameters', function (done) {
-            var req = coap.request(requestUrl),
-                rs = new Readable(),
-                handlerCalled = false;
-
-            libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-                function(endpoint, lifetime, version, binding, payload, callback) {
-                    should.exist(endpoint);
-                    should.exist(lifetime);
-                    should.exist(version);
-                    should.exist(binding);
-                    should.exist(payload);
-                    endpoint.should.equal('ROOM001');
-                    lifetime.should.equal('86400');
-                    version.should.equal('1.0');
-                    binding.should.equal('U');
-                    payload.should.equal('</1>, </2>, </3>, </4>, </5>');
-                    handlerCalled = true;
-
-                    callback();
-                });
-
-            rs.push(payload);
-            rs.push(null);
-            rs.pipe(req);
-
-            req.on('response', function(res) {
-                handlerCalled.should.equal(true);
-                done();
-            });
-        });
-        it('should include Location-Path Options in the response', function (done) {
-            var req = coap.request(requestUrl),
-                rs = new Readable();
-
-            libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-                function(endpoint, lifetime, version, binding, payload, callback) {
-                    callback();
-                });
-
-            rs.push(payload);
-            rs.push(null);
-            rs.pipe(req);
-
-            req.on('response', function(res) {
-                res.options.length.should.equal(1);
-                res.options[0].name.should.equal('Location-Path');
-                res.options[0].value.should.match(/rd\/.*/);
-                done();
-            });
-        });
-    });
-    describe('When a client registration expires (due to its lifetime)', function(done) {
-        it('should reject every subsequent operation with that device ID');
-    });
 });
