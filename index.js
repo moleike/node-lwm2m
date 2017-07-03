@@ -25,8 +25,8 @@
 
 require('es6-promise').polyfill();
 
-exports.createServer = require('./server');
+exports.createServer = require('./lib/server');
 //exports.client = require('./client');
-exports.Schema = require('./schema');
-exports.Registry = require('./server/registry');
+exports.Schema = require('./lib/schema');
+exports.Registry = require('./lib/server/registry');
 
