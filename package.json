@@ -20,16 +20,11 @@
   "scripts": {
     "test": "grunt"
   },
-  "bin": {
-    "iotagent-lwm2m-client": "bin/iotagent-lwm2m-client.js",
-    "iotagent-lwm2m-server": "bin/iotagent-lwm2m-server.js"
-  },
   "dependencies": {
     "array.prototype.findindex": "^2.0.2",
     "async": "1.5.2",
     "coap": "^0.21.0",
     "coap-cli": "0.4.0",
-    "command-node": "0.1.1",
     "debug": "^2.6.6",
     "es6-promise": "^4.1.0",
     "object.assign": "^4.0.4",
