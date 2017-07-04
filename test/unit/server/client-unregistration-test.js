@@ -23,92 +23,98 @@
 
 'use strict';
 
-var libLwm2m2 = require('../../../').server,
-    coap = require('coap'),
-    utils = require('./../testUtils'),
-    config = require('../../../config'),
-    async = require('async'),
-    should = require('should'),
-    testInfo = {};
+var should = require('should');
+var lwm2m = require('../../../');
+var coap = require('coap');
+var Readable = require('stream').Readable;
+var port = 5683;
+var server;
+var payload = '</1>,</2>,</3>,</4>,</5>';
+var ep = 'test';
+var location;
 
-describe('Client unregistration tests', function() {
-    var deviceLocation;
+describe('Client unregistration', function() {
 
-    function registerHandlers(callback) {
-        libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-            function(endpoint, lifetime, version, binding, payload, innerCb) {
-                innerCb();
-            });
+  beforeEach(function (done) {
+    server = lwm2m.createServer({ type: 'udp4' });
+    server.on('error', done);
+    server.on('register', function(params, accept) {
+      accept();
+    });
 
+    server.listen(port, function() {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+
+      req.on('response', function(res) {
+        location = res.options.filter(function(option) { 
+          return option.name === 'Location-Path'; 
+        })[0].value;
+
+        location.should.be.a.String();
+        done();
+      });
+    });
+  });
+
+  afterEach(function(done) {
+    server.close(done);
+  });
+
+  describe('De-registering a client', function() {
+    it('should return a 2.02 Deleted', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: location
+      });
+      var params;
+
+      server.on('unregister', function(location, callback) {
+        params = location;
         callback();
-    }
+      });
 
-    beforeEach(function (done) {
-        libLwm2m2.start(config.server, function (error, srvInfo){
-            testInfo.serverInfo = srvInfo;
+      req.on('response', function(res) {
+        params.should.be.equal(location);
+        res.code.should.equal('2.02');
+        done();
+      });
 
-            async.series([
-                libLwm2m2.getRegistry().clean,
-                registerHandlers,
-                async.apply(utils.registerClient, 'ROOM001')
-            ], function (error, results) {
-                deviceLocation = results[2][0];
-                done();
-            });
-        });
+      req.end();
     });
+  });
 
-    afterEach(function(done) {
-        libLwm2m2.stop(testInfo.serverInfo, done);
+  describe('De-registering an unknown client', function () {
+    it('should return a 4.04 Not found', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: '/rd/136'
+      });
+
+      server.on('unregister', function(location, callback) {
+        should.fail('calling user handler for a bad request');
+        callback();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.04');
+        done();
+      });
+
+      req.end();
     });
-
-    describe('When a unregistration for a not registered device arrives', function () {
-        var removeRequest = {
-            host: 'localhost',
-                port: config.server.port,
-                method: 'DELETE',
-                pathname: '/rd/136'
-        };
-
-        beforeEach(function () {
-            libLwm2m2.setHandler(testInfo.serverInfo, 'unregistration', function(device, callback) {
-                callback();
-            });
-        });
-
-        it('should return a 4.04 Not found code', utils.checkCode(testInfo, removeRequest, '', '4.04'));
-    });
-    describe('When a correct client unregistration request arrives', function() {
-        var removeRequest = {
-            host: 'localhost',
-            port: config.server.port,
-            method: 'DELETE'
-        };
-
-        beforeEach(function (done) {
-            removeRequest.pathname = deviceLocation;
-            done();
-        });
-
-        it('should remove the device registration', function(done) {
-            var req = coap.request(removeRequest),
-                handlerCalled = false;
-
-            libLwm2m2.setHandler(testInfo.serverInfo, 'unregistration', function(device, callback) {
-                should.exist(device);
-                should.exist(device.name);
-                device.name.should.equal('ROOM001');
-                handlerCalled = true;
-                callback();
-            });
-
-            req.on('response', function(res) {
-                handlerCalled.should.equal(true);
-                done();
-            });
-
-            req.end();
-        });
-        it('should return a 4.04 Not found code', utils.checkCode(testInfo, removeRequest, '', '2.02'));
-    });
+  });
 });
