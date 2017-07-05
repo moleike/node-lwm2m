@@ -23,298 +23,110 @@
 
 'use strict';
 
-var libLwm2m2 = require('../../../').server,
-    utils = require('./../testUtils'),
-    config = require('../../../config'),
-    coapUtils = require('../../../lib/services/coapUtils'),
-    libcoap = require('coap'),
-    should = require('should'),
-    server = libcoap.createServer({type: config.server.ipProtocol}),
-    async = require('async'),
-    testInfo = {};
+var should = require('should');
+var lwm2m = require('../../../');
+var coap = require('coap');
+var Readable = require('stream').Readable;
+var port = 5683;
+var server, client;
+var payload = '</1>,</2>,</3>,</4>,</5>';
+var ep = 'test';
+var schema = lwm2m.Schema({
+  foo : { id: 5, type: 'String' },
+  bar : { id: 6, type: 'Number' }
+});
 
-describe('Device management interface' , function() {
-    var deviceLocation;
+describe('Device management' , function() {
 
-    function registerHandlers(callback) {
-        libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-            function(endpoint, lifetime, version, binding, payload, innerCb) {
-                innerCb();
-            });
-
-        libLwm2m2.setHandler(testInfo.serverInfo, 'updateRegistration', function(object, innerCb) {
-            innerCb();
-        });
-
-        callback();
-    }
-
-    beforeEach(function (done) {
-        libLwm2m2.start(config.server, function (error, srvInfo){
-            testInfo.serverInfo = srvInfo;
-
-            async.series([
-                registerHandlers,
-                async.apply(utils.registerClient, 'ROOM001')
-            ], function (error, results) {
-                deviceLocation = results[1][0];
-
-                server.listen(results[1][1], function (error) {
-                    done();
-                });
-            });
-        });
+  beforeEach(function (done) {
+    server = lwm2m.createServer({ type: 'udp4' });
+    client = coap.createServer({ type: 'udp4' });
+    server.on('error', done);
+    server.on('register', function(params, accept) {
+      accept();
     });
 
-    afterEach(function(done) {
-        libLwm2m2.stop(testInfo.serverInfo, function (error) {
-            server.removeAllListeners('request');
-            server.close(done);
-        });
+    server.listen(port, function() {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+
+      req.on('response', function(res) {
+        client.listen(res.outSocket.port, done);
+      });
+    });
+  });
+
+  afterEach(function(done) {
+    server.close(function() {
+      client.close(done);
+    });
+  });
+
+  describe('#read()', function() {
+
+    it('respond with parsed object', function (done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        res.setOption('Content-Format', 'application/vnd.oma.lwm2m+json');
+        res.code = '2.05';
+
+        var rs = new Readable();
+        rs.push('{"e":[');
+        rs.push('{"n":"5","sv":"test"},');
+        rs.push('{"n":"6","v":42}');
+        rs.push(']}');
+        rs.push(null);
+        rs.pipe(res);
+      });
+
+      server.read(ep, '/3/4', { schema: schema },  function (err, result) {
+        should.not.exist(err);
+        should.exist(result);
+        result.should.have.properties(['foo', 'bar']);
+        done();
+      });
     });
 
-    describe('When the user invokes the Read operation on an attribute', function() {
-        it('should send a COAP GET Operation on the selected attribute', function (done) {
-            server.on('request', function (req, res) {
-                req.method.should.equal('GET');
-                res.code = '2.05';
-                res.end('The Read content');
-            });
+    it('respond with matching resource', function (done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        res.setOption('Content-Format', 'text/plain');
+        res.code = '2.05';
+        res.end('test');
+      });
 
-            libLwm2m2.discover(deviceLocation.split('/')[1], '6', '2', '5', function (error, result) {
-                should.not.exist(error);
-                should.exist(result);
-                result.should.equal('The Read content');
-                done();
-            });
-        });
+      server.read(ep, '/3/4/5', { schema: schema },  function (err, result) {
+        should.not.exist(err);
+        should.exist(result);
+        result.should.equal('test');
+        done();
+      });
     });
-    describe('When the user invokes the Read operation on an instance', function() {
-        it('should send a COAP GET Operation to the instance URI');
+  });
+  describe('#discover()', function() {
+    it('respond with matching payload send by client', function (done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        res.code = '2.05';
+        res.end('test');
+      });
+
+      server.discover(ep, '/3/4/5', function (err, result) {
+        should.not.exist(err);
+        should.exist(result);
+        result.should.equal('test');
+        done();
+      });
     });
-    describe('When the user invokes the Write operation on an attribute', function() {
-        it('should send a COAP PUT Operation on the selected attribute', function (done) {
-            var data = '';
-
-            server.on('request', function (req, res) {
-                req.method.should.equal('PUT');
-                res.code = '2.04';
-
-                data = res._request.payload.toString();
-                res.end('The content');
-            });
-
-            libLwm2m2.write(deviceLocation.split('/')[1], '6', '2', '5', 'The value', function (error) {
-                should.not.exist(error);
-                data.should.equal('The value');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Write operation for an instance without specifiying an attribute', function() {
-        it('should send a COAP PUT Operation with the full description of the instance as the payload to the instance');
-    });
-    describe('When the user invokes the Execute operation on a resource', function() {
-        it('should send a COAP POST Operation on the selected resource', function(done) {
-            var data = '';
-
-            server.on('request', function (req, res) {
-                req.method.should.equal('POST');
-                res.code = '2.04';
-
-                data = res._request.payload.toString();
-                res.end('The content');
-            });
-
-            libLwm2m2.execute(deviceLocation.split('/')[1], '6', '2', '5', 'The Arguments', function (error) {
-                should.not.exist(error);
-                data.should.equal('The Arguments');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Execute operation on an unexistent resource', function() {
-        it('should return a OBJECT_NOT_FOUND error to the caller', function(done) {
-            server.on('request', function (req, res) {
-                res.code = '4.04';
-
-                res.end('The content');
-            });
-
-            libLwm2m2.execute(deviceLocation.split('/')[1], '6', '2', '5', 'The Arguments', function (error) {
-                should.exist(error);
-                error.name.should.equal('OBJECT_NOT_FOUND');
-                error.code.should.equal('4.04');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Execute and the server returns an unknown error', function() {
-        it('should return a CLIENT_ERROR error to the caller', function(done) {
-            server.on('request', function (req, res) {
-                res.code = '5.07';
-
-                res.end('The content');
-            });
-
-            libLwm2m2.execute(deviceLocation.split('/')[1], '6', '2', '5', 'The Arguments', function (error) {
-                should.exist(error);
-                error.name.should.equal('CLIENT_ERROR');
-                error.code.should.equal('5.07');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Discovery operation on a resource', function() {
-        it('should send a COAP GET Operation on the selected resource ' +
-            'with the Accept: application/link-format header', function (done) {
-            server.on('request', function (req, res) {
-                should.exist(req.headers['Accept']);
-                req.headers['Accept'].should.equal('application/link-format');
-                req.method.should.equal('GET');
-                res.code = '2.05';
-                req.url.should.equal('/6/2/5');
-                res.end('</6/2/5>;pmin=10;pmax=60;lt=42.2');
-            });
-
-            libLwm2m2.discover(deviceLocation.split('/')[1], '6', '2', '5', function (error, result) {
-                should.not.exist(error);
-                should.exist(result);
-                result.should.equal('</6/2/5>;pmin=10;pmax=60;lt=42.2');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Discovery operation on an object instance', function() {
-        it('should send a COAP GET Operation on the selected object instance ' +
-        'with the Accept: application/link-format header', function (done) {
-            server.on('request', function (req, res) {
-                should.exist(req.headers['Accept']);
-                req.headers['Accept'].should.equal('application/link-format');
-                req.method.should.equal('GET');
-                res.code = '2.05';
-                req.url.should.equal('/6/2');
-                res.end('</6/2>;pmin=10;pmax=60;lt=42.2,</6/2/1>');
-            });
-
-            libLwm2m2.discover(deviceLocation.split('/')[1], '6', '2', function (error, result) {
-                should.not.exist(error);
-                should.exist(result);
-                result.should.equal('</6/2>;pmin=10;pmax=60;lt=42.2,</6/2/1>');
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Discovery operation on an object type', function() {
-        it('should send a COAP GET Operation on the selected object type ' +
-        'with the Accept: application/link-format header', function (done) {
-            server.on('request', function (req, res) {
-                should.exist(req.headers['Accept']);
-                req.headers['Accept'].should.equal('application/link-format');
-                req.method.should.equal('GET');
-                req.url.should.equal('/6');
-                res.code = '2.05';
-                res.end('</6>;pmin=10;pmax=60;lt=42.2,</6//1>');
-            });
-
-            libLwm2m2.discover(deviceLocation.split('/')[1], '6', function (error, result) {
-                should.not.exist(error);
-                should.exist(result);
-                result.should.equal('</6>;pmin=10;pmax=60;lt=42.2,</6//1>');
-                done();
-            });
-        });
-    });
-
-    describe('When the user invokes the Write Attributes operation over a resource', function() {
-        it('should send a COAP PUT Operation on the selected attribute ' +
-            'with the given parameters and without payload', function (done) {
-            var attributes= {
-                    pmin: 5000,
-                    pmax: 20000,
-                    gt: 14.5,
-                    lt: 3.1,
-                    st: 2000,
-                    cancel: false
-                },
-                requestSent = false;
-
-            server.on('request', function (req, res) {
-                var queryParams = coapUtils.extractQueryParams(req);
-
-                should.exist(queryParams);
-                queryParams.pmin.should.equal('5000');
-                queryParams.pmax.should.equal('20000');
-                queryParams.gt.should.equal('14.5');
-                queryParams.lt.should.equal('3.1');
-                queryParams.st.should.equal('2000');
-                queryParams.cancel.should.equal('false');
-
-                requestSent = true;
-
-                req.method.should.equal('PUT');
-                res.code = '2.04';
-                res.end('The content');
-            });
-
-            libLwm2m2.writeAttributes(deviceLocation.split('/')[1], '6', '2', '5', attributes, function (error) {
-                should.not.exist(error);
-                requestSent.should.equal(true);
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Write Attributes operation with unsupported attributes', function() {
-        it('should fail with an UNRECOGNIZED_ATTRIBUTE error', function() {
-            it('should send a COAP PUT Operation on the selected attribute ' +
-                'with the given parameters and without payload', function (done) {
-                var attributes= {
-                        pmin: 5000,
-                        unexistentAttribute1: 20000,
-                        unexistentAttribute2: 14.5,
-                        lt: 3.1,
-                        st: 2000,
-                        cancel: false
-                    },
-                    requestSent = false;
-
-                server.on('request', function (req, res) {
-                    requestSent = true;
-
-                    req.method.should.equal('PUT');
-                    res.code = '2.04';
-                    res.end('The content');
-                });
-
-                libLwm2m2.writeAttributes(deviceLocation.split('/')[1], '6', '2', '5', attributes, function (error) {
-                    should.exist(error);
-                    error.name.should.equal('UNRECOGNIZED_ATTRIBUTE');
-                    requestSent.should.equal(false);
-                    done();
-                });
-            });
-        });
-    });
-    describe('When the user invokes the Create operation on an instance', function() {
-        it('should send a COAP POST Operation to the selected Object ID and Instance ID', function (done) {
-            var requestArrived = false;
-
-            server.on('request', function (req, res) {
-                req.method.should.equal('POST');
-                res.code = '2.01';
-                req.url.should.equal('/6/3');
-                requestArrived = true;
-                res.end('The Read content');
-            });
-
-            libLwm2m2.create(deviceLocation.split('/')[1], '6', '3', function (error) {
-                should.not.exist(error);
-                requestArrived.should.equal(true);
-                done();
-            });
-        });
-    });
-    describe('When the user invokes the Delete operation on an instance', function() {
-        it('should send a COAP DELETE Operation to the selected Object ID and Instance ID');
-    });
+  });
 });
