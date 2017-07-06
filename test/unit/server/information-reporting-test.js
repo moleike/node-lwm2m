@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+ * Copyright 2017 Alexandre Moreno <alex_moreno@tutk.com>
  *
  * This file is part of iotagent-lwm2m-lib
  *
@@ -23,193 +23,149 @@
 
 'use strict';
 
-var libLwm2m2 = require('../../../').server,
-    utils = require('./../testUtils'),
-    config = require('../../../config'),
-    memoryRegistry = require('../../../lib/services/server/inMemoryDeviceRegistry'),
-    libcoap = require('coap'),
-    should = require('should'),
-    server = libcoap.createServer({type: config.server.ipProtocol}),
-    async = require('async'),
-    testInfo = {};
+var should = require('should');
+var url = require('url');
+var lwm2m = require('../../../');
+var coap = require('coap');
+var Readable = require('readable-stream').Readable;
+var Writable = require('readable-stream').Writable;
+var Stream = require('stream');
+var port = 5683;
+var server, client;
+var payload = '</1>,</2>,</3>,</4>,</5>';
+var ep = 'test';
 
-describe('Information reporting interface', function() {
-    var deviceLocation;
+describe('Information Reporting' , function() {
 
-    function registerHandlers(callback) {
-        libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-            function(endpoint, lifetime, version, binding, payload, innerCb) {
-                innerCb();
-            });
+  beforeEach(function (done) {
+    server = lwm2m.createServer({ type: 'udp4' });
+    client = coap.createServer({ type: 'udp4' });
 
-        libLwm2m2.setHandler(testInfo.serverInfo, 'updateRegistration', function(object, innerCb) {
-            innerCb();
-        });
-
-        callback();
-    }
-
-    function emptyHandler(data) {
-
-    }
-
-    beforeEach(function (done) {
-        memoryRegistry.clean(function () {
-            libLwm2m2.start(config.server, function (error, srvInfo){
-                testInfo.serverInfo = srvInfo;
-
-                async.series([
-                    registerHandlers,
-                    async.apply(utils.registerClient, 'ROOM001')
-                ], function (error, results) {
-                    deviceLocation = results[1][0];
-
-                    server.listen(results[1][1], function (error) {
-                        done();
-                    });
-                });
-            });
-        });
+    server.on('error', done);
+    server.on('register', function(params, accept) {
+      accept();
     });
 
-    afterEach(function(done) {
-        async.series([
-            libLwm2m2.cleanObservers,
-            async.apply(libLwm2m2.stop, testInfo.serverInfo)
-        ], function (error) {
-            server.removeAllListeners('request');
-            server.close(done);
+    server.listen(port, function() {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        client.listen(res.outSocket.port, done);
+      });
+    });
+  });
+
+  afterEach(function(done) {
+    server.close(function() {
+      client.close(done);
+    });
+  });
+
+  describe('#observe()', function() {
+    it('should return an stream and pipe client messages', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        req.headers['Observe'].should.equal(0);
+
+        res.should.be.an.instanceof(Writable);
+
+        var interval = setInterval(function() {
+          res.write('test');
+        }, 50);
+
+        res.setOption('Content-Format', 'text/plain');
+        res.code = '2.05';
+
+        setTimeout(function() {
+          res.end();
+        }, 500);
+
+        res.on('finish', function(err) {
+          clearInterval(interval);
+          done();
         });
+
+      });
+
+      server.observe(ep, '/3/4')
+      .then(function(stream) {
+        stream.should.be.an.instanceof(Stream);
+        stream.on('data', function(chunk) {
+          chunk.should.be.equal('test');
+          stream.close();
+        });
+        stream.on('error', done);
+      })
+      .catch(done);
     });
 
-    describe('When the user invokes the Observe operation on a resource', function() {
-        it('should send a COAP GET Request with a generated Observe Option for the resource',
-            function (done) {
-                server.on('request', function (req, res) {
-                    req.method.should.equal('GET');
-                    req.options.should.containDeep([{name: 'Observe'}]);
-                    res.code = '2.05';
-                    res.setOption('Observe', 1);
-                    res.end('The Read content');
-                });
+    it('should emit and `end` event when client stops sending data', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        req.headers['Observe'].should.equal(0);
 
-                libLwm2m2.observe(deviceLocation.split('/')[1], '6', '2', '5', emptyHandler, function (error, result) {
-                    should.not.exist(error);
-                    should.exist(result);
-                    result.should.equal('The Read content');
-                    done();
-                });
+        res.should.be.an.instanceof(Writable);
+        res.setOption('Content-Format', 'text/plain');
+        res.code = '2.05';
+
+        var interval = setInterval(function() {
+          res.write('test');
+        }, 50);
+
+        setTimeout(function() {
+          res.end();
+        }, 500);
+
+        res.on('finish', function(err) {
+          clearInterval(interval);
         });
-        it('should store the subscription to the value', function (done) {
-            server.on('request', function (req, res) {
-                res.code = '2.05';
-                res.setOption('Observe', 1);
-                res.end('The Read content');
-            });
+      });
 
-            libLwm2m2.observe(deviceLocation.split('/')[1], '6', '2', '5', emptyHandler, function (error, result) {
-                should.not.exist(error);
+      server.observe(ep, '/3/4')
+      .then(function(stream) {
+        stream.should.be.an.instanceof(Stream);
 
-                libLwm2m2.listObservers(function (error, result) {
-                    should.not.exist(error);
-                    result.length.should.equal(1);
-                    result[0].resource.should.equal('/6/2/5');
-                    result[0].deviceId.should.equal(deviceLocation.split('/')[1]);
-                    done();
-                });
-            });
+        stream.on('data', function(chunk) {
+          chunk.should.be.equal('test');
+          stream.close();
         });
+
+        stream.on('end', function() {
+          done();
+        });
+
+        stream.on('error', done);
+      })
+      .catch(done);
     });
-    describe('When a Notify message arrives with an Observe Option', function() {
-        beforeEach(function () {
-            server.on('request', function (req, res) {
-                res.code = '2.05';
-                res.setOption('Observe', 1);
-                res.write('The First content');
-                res.write('The Second content');
-                res.write('The Third content');
-                res.end('The final content');
-            });
-        });
+  });
 
-        it('should invoke the user notification handler once per notify message', function (done) {
-            var handlerInvokedTimes = 0;
+  describe('#cancel()', function() {
+    it('should stop receiving data', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        req.headers['Observe'].should.equal(1);
 
-            function userHandler(data) {
-                handlerInvokedTimes++;
+        res.end();
+      });
 
-                if (data === 'The final content') {
-                    handlerInvokedTimes.should.equal(3);
-                    done();
-                }
-            }
-
-            libLwm2m2.observe(deviceLocation.split('/')[1], '6', '2', '5', userHandler, function (error, result) {
-                should.not.exist(error);
-            });
-        });
+      server.cancel(ep, '/3/4')
+      .then(function() {
+        done();
+      })
+      .catch(done);
     });
-    describe.skip('When the user invokes the Cancel operation on a resource', function() {
-        beforeEach(function () {
-            server.on('request', function (req, res) {
-                function notify(msg) {
-                    try {
-                        res.write(msg);
-                    } catch(e) {
-                        // Expected to throw an error if the server closes the connection first.
-                    }
-                }
-                res.code = '2.05';
-                res.setOption('Observe', 1);
-
-                res.write('The First content');
-                setTimeout(notify.bind(null, 'The Second content'), 100);
-                setTimeout(notify.bind(null, 'The Third content'), 200);
-                setTimeout(notify.bind(null, 'The Fourth content'), 300);
-                setTimeout(notify.bind(null, 'The Fifth content'), 400);
-            });
-        });
-
-        it('should stop sending updates for the resource value', function (done) {
-            var handlerInvokedTimes = 0,
-                maxTestDuration = 1500;
-
-            function userHandler(data) {
-                handlerInvokedTimes++;
-
-                if (handlerInvokedTimes === 1) {
-                    libLwm2m2.cancelObserver(deviceLocation.split('/')[1], '6', '2', '5', function () {
-                        setTimeout(function () {
-                            handlerInvokedTimes.should.equal(1);
-                            done();
-                        }, maxTestDuration);
-                    });
-                }
-            }
-
-            libLwm2m2.observe(deviceLocation.split('/')[1], '6', '2', '5', userHandler, function (error, result) {
-                should.not.exist(error);
-            });
-        });
-
-        it('should remove the listener from the observers list', function (done) {
-            var handlerInvokedTimes = 0;
-
-            function userHandler(data) {
-                handlerInvokedTimes++;
-            }
-
-            libLwm2m2.observe(deviceLocation.split('/')[1], '6', '2', '5', userHandler, function (error, result) {
-                should.not.exist(error);
-
-                libLwm2m2.cancelObserver(deviceLocation.split('/')[1], '6', '2', '5', function () {
-                        libLwm2m2.listObservers(function (error, result) {
-                            should.not.exist(error);
-                            result.length.should.equal(0);
-                            done();
-                        });
-                });
-            });
-        });
-    });
+  });
 });

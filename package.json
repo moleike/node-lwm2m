@@ -2,35 +2,29 @@
   "name": "lwm2m",
   "description": "Library for developing servers and client of OMA Lightweight M2M",
   "version": "0.0.2",
-  "homepage": "https://github.com/muoren/node-lwm2m",
+  "homepage": "https://github.com/moleike/node-lwm2m",
   "author": {
     "name": "Alexandre Moreno",
     "email": "alex_moreno@tutk.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/muoren/node-lwm2m"
+    "url": "git://github.com/moleike/node-lwm2m"
   },
   "bugs": {
-    "url": "https://github.com/muoren/node-lwm2m/issues"
+    "url": "https://github.com/moleike/node-lwm2m/issues"
   },
   "engines": {
-    "node": ">=0.10.8"
+    "node": ">=4"
   },
   "scripts": {
     "test": "grunt"
   },
   "dependencies": {
-    "array.prototype.findindex": "^2.0.2",
-    "async": "1.5.2",
     "coap": "^0.21.0",
     "debug": "^2.6.6",
-    "es6-promise": "^4.1.0",
-    "object.assign": "^4.0.4",
-    "object.entries": "^1.0.4",
-    "object.values": "^1.0.4",
-    "readable-stream": "^2.2.11",
-    "setprototypeof": "^1.0.3"
+    "node-promisify": "^1.2.0",
+    "readable-stream": "^2.2.11"
   },
   "devDependencies": {
     "grunt": "0.4.5",

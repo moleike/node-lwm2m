@@ -96,7 +96,7 @@ describe('Client registration', function() {
     });
   });
 
-  describe('when a valid request', function () {
+  describe('when a valid request', function() {
     it('should return a 2.01 Created', function(done) {
       var req = coap.request({
         host: 'localhost',
@@ -129,19 +129,17 @@ describe('Client registration', function() {
         pathname: '/rd',
         query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
       });
-      var query = {};
-      var payload;
+      var request = {};
 
       server.on('register', function(params, accept) {
-        query = params;
-        payload = params.payload;
+        request = params;
         accept();
       });
 
       req.on('response', function(res) {
         res.code.should.equal('2.01');
-        query.should.have.properties(['ep', 'lt', 'lwm2m', 'b']);
-        payload.should.be.a.String();
+        request.should.have.properties(['ep', 'lt', 'lwm2m', 'b']);
+        request.payload.should.be.a.String();
         done();
       });
 
@@ -167,7 +165,7 @@ describe('Client registration', function() {
       req.on('response', function(res) {
         res.options.length.should.equal(1);
         res.options[0].name.should.equal('Location-Path');
-        res.options[0].value.should.match(/rd\/.*/);
+        res.options[0].value.should.match(/rd\/\w+/);
         done();
       });
 

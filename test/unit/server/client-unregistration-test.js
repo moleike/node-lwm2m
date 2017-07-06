@@ -50,12 +50,9 @@ describe('Client unregistration', function() {
         pathname: '/rd',
         query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
       });
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
 
       req.on('response', function(res) {
+        res.code.should.equal('2.01');
         location = res.options.filter(function(option) { 
           return option.name === 'Location-Path'; 
         })[0].value;
@@ -63,6 +60,11 @@ describe('Client unregistration', function() {
         location.should.be.a.String();
         done();
       });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
   });
 

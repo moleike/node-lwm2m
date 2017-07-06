@@ -27,7 +27,7 @@
 
 var should = require('should'), // jshint ignore:line
     senml = require('../../../lib/senml'),
-    Schema = require('../../../lib/schema'),
+    Schema = require('../../..').Schema,
     deviceSchema = new Schema(require('../../../oma/device'));
 
 var object = { 
