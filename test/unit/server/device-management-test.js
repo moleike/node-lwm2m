@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+ * Copyright 2017 Alexandre Moreno <alex_moreno@tutk.com>
  *
  * This file is part of iotagent-lwm2m-lib
  *
@@ -24,9 +24,10 @@
 'use strict';
 
 var should = require('should');
+var url = require('url');
 var lwm2m = require('../../../');
 var coap = require('coap');
-var Readable = require('stream').Readable;
+var Readable = require('readable-stream').Readable;
 var port = 5683;
 var server, client;
 var payload = '</1>,</2>,</3>,</4>,</5>';
@@ -61,6 +62,7 @@ describe('Device management' , function() {
       rs.pipe(req);
 
       req.on('response', function(res) {
+        res.code.should.equal('2.01');
         client.listen(res.outSocket.port, done);
       });
     });
@@ -73,8 +75,7 @@ describe('Device management' , function() {
   });
 
   describe('#read()', function() {
-
-    it('respond with parsed object', function (done) {
+    it('should respond with parsed object', function(done) {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         res.setOption('Content-Format', 'application/vnd.oma.lwm2m+json');
@@ -89,7 +90,7 @@ describe('Device management' , function() {
         rs.pipe(res);
       });
 
-      server.read(ep, '/3/4', { schema: schema },  function (err, result) {
+      server.read(ep, '/3/4', { schema: schema },  function(err, result) {
         should.not.exist(err);
         should.exist(result);
         result.should.have.properties(['foo', 'bar']);
@@ -97,7 +98,7 @@ describe('Device management' , function() {
       });
     });
 
-    it('respond with matching resource', function (done) {
+    it('should respond with matching resource', function(done) {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         res.setOption('Content-Format', 'text/plain');
@@ -105,28 +106,167 @@ describe('Device management' , function() {
         res.end('test');
       });
 
-      server.read(ep, '/3/4/5', { schema: schema },  function (err, result) {
+      server.read(ep, '42/3/5', { schema: schema },  function(err, result) {
         should.not.exist(err);
         should.exist(result);
         result.should.equal('test');
         done();
       });
     });
+
+    it('should respond with an 4.04 when resource not found', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        res.code = '4.04';
+        res.end('');
+      });
+
+      server.read(ep, '42/3/5', { schema: schema },  function(err) {
+        should.exist(err);
+        err.should.have.property('code').eql('4.04');
+        done();
+      });
+    });
+
+    it('should respond with an 4.04 when client not found', function(done) {
+      server.read('unknown', '42/3/5', { schema: schema },  function(err) {
+        should.exist(err);
+        err.should.have.property('code').eql('4.04');
+        done();
+      });
+    });
+
+    it('should throw when missing/invalid schema', function() {
+      server.read.bind(server, ep, '42/3/5').should
+        .throw(TypeError, { message: 'Illegal schema' });
+    });
+
+    it('should throw when path is nonsense', function() {
+      server.read.bind(server, ep, '/', { schema: schema }).should
+        .throw(/Illegal path/);
+      server.read.bind(server, ep, 'foo', { schema: schema }).should
+        .throw(/Illegal path/);
+    });
   });
+
+  describe('#write()', function() {
+    it('should send an encoded payload', function(done) {
+      client.on('request', function (req, res) {
+        var payload = req.payload.toString();
+
+        req.method.should.equal('POST');
+
+        payload.should.startWith('{"e":[');
+        payload.should.match(/{"n":"5","sv":"test"}/);
+        payload.should.match(/{"n":"6","v":42}/);
+        payload.should.endWith(']}');
+
+        res.code = '2.04';
+        res.end();
+      });
+
+      var options = { 
+        schema: schema, 
+        format: 'json'
+      };
+
+      var value = {
+        foo: 'test',
+        bar: 42
+      };
+
+      server.write(ep, '/3/4', value, options, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+  });
+
   describe('#discover()', function() {
-    it('respond with matching payload send by client', function (done) {
+    it('should respond with matching payload sent by client', function(done) {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         res.code = '2.05';
         res.end('test');
       });
 
-      server.discover(ep, '/3/4/5', function (err, result) {
+      server.discover(ep, '42/3/5', function(err, result) {
         should.not.exist(err);
         should.exist(result);
         result.should.equal('test');
         done();
       });
     });
+
+    it('should throw when path is nonsense', function() {
+      server.discover.bind(server, ep, '/').should
+        .throw(/Illegal path/);
+      server.discover.bind(server, ep, 'foo').should
+        .throw(/Illegal path/);
+    });
   });
+
+  describe('#writeAttributes()', function() {
+    it('should send query matching attributes', function(done) {
+      client.on('request', function (req, res) {
+        var attr = url
+          .parse(req.url).query
+          .split('&')
+          .reduce(function(attr, cur) { 
+            var pair = cur.split('='); 
+            attr[pair[0]] = pair[1]; 
+            return attr 
+          }, {});
+
+        attr.should.have.keys('pmin', 'pmax', 'lt');
+        req.method.should.equal('PUT');
+        res.code = '2.04';
+        res.end();
+      });
+
+      var attr = { pmin: 1, pmax: 5, lt: 5 };
+
+      server.writeAttributes(ep, '42/3/5', attr, function(err, result) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+  });
+
+  describe('#delete()', function() {
+    it('should delete an instance', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('DELETE');
+        res.code = '2.02';
+        res.end();
+      });
+
+      server.delete(ep, '/3/4', function(err, result) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should return an error if path not an instance', function() {
+      server.delete.bind(server, ep, '42/3/5').should.throw();
+    });
+  });
+
+  describe('#execute()', function() {
+    it('should send a POST request to a resource', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('POST');
+        req.payload.toString().should.equal('test');
+        res.code = '2.04';
+        res.end();
+      });
+
+      server.execute(ep, '42/3/5', 'test', function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+  });
+
 });
