@@ -23,59 +23,78 @@
 
 'use strict';
 
-var libLwm2m2 = require('../../../').server,
-    utils = require('./../testUtils'),
-    config = require('../../../config'),
-    async = require('async'),
-    testInfo = {};
+var should = require('should');
+var lwm2m = require('../../../');
+var coap = require('coap');
+var Readable = require('stream').Readable;
+var port = 5683;
+var server;
+var payload = '</1>,</2>,</3>,</4>,</5>';
+var ep = 'test';
+var location;
 
-describe('Client update registration interface', function() {
-    var deviceLocation;
+describe('Client update registration', function() {
 
-    function registerHandlers(callback) {
-        libLwm2m2.setHandler(testInfo.serverInfo, 'registration',
-            function(endpoint, lifetime, version, binding, payload, innerCb) {
-                innerCb();
-            });
-
-        libLwm2m2.setHandler(testInfo.serverInfo, 'updateRegistration', function(object, payload, innerCb) {
-            innerCb();
-        });
-
-        callback();
-    }
-
-    beforeEach(function (done) {
-        libLwm2m2.start(config.server, function (error, srvInfo){
-            testInfo.serverInfo = srvInfo;
-
-            async.series([
-                registerHandlers,
-                async.apply(utils.registerClient, 'ROOM001')
-            ], function (error, results) {
-                deviceLocation = results[1][0];
-
-                done();
-            });
-        });
+  beforeEach(function (done) {
+    server = lwm2m.createServer({ type: 'udp4' });
+    server.on('error', done);
+    server.on('register', function(params, accept) {
+      accept();
     });
 
-    afterEach(function(done) {
-        libLwm2m2.stop(testInfo.serverInfo, done);
+    server.listen(port, function() {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        location = res.options.filter(function(option) { 
+          return option.name === 'Location-Path'; 
+        })[0].value;
+
+        location.should.be.a.String();
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
+  });
 
-    describe('When a correct client registration update request arrives', function() {
-        var updateRequest = {
-            host: 'localhost',
-            port: config.server.port,
-            method: 'POST',
-            query: 'lt=86400&b=U'
-        };
+  afterEach(function(done) {
+    server.close(done);
+  });
 
-        beforeEach(function() {
-            updateRequest.pathname = deviceLocation;
-        });
+  describe('when a valid request', function() {
+    it('should return a 2.04 Changed', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: location,
+        query: 'lt=86400&lwm2m=1.0&b=U'
+      });
 
-        it('should return a 2.04 Changed code', utils.checkCode(testInfo, updateRequest, '', '2.04'));
+      server.on('update', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.04');
+        done();
+      });
+
+      var rs = new Readable();
+      rs.push(payload);
+      rs.push(null);
+      rs.pipe(req);
     });
+  });
 });

@@ -23,7 +23,7 @@
 
 'use strict';
 
-var Window = require('../../../lib/services/slidingWindow'),
+var Window = require('../../../lib/slidingWindow'),
     assert = require('assert');
 
 describe('Sliding windows test', function() {
