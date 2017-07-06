@@ -24,7 +24,6 @@
     "array.prototype.findindex": "^2.0.2",
     "async": "1.5.2",
     "coap": "^0.21.0",
-    "coap-cli": "0.4.0",
     "debug": "^2.6.6",
     "es6-promise": "^4.1.0",
     "object.assign": "^4.0.4",
