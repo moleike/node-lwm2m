@@ -1,5 +1,4 @@
 /*
- * Copyright 2017 Alexandre Moreno <alex_moreno@tutk.com>
  * Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
  *
  * This file is part of iotagent-lwm2m-lib
@@ -25,27 +24,26 @@
 'use strict';
 
 var should = require('should');
-var lwm2m = require('../../../');
+var lwm2m = require('../../');
 var coap = require('coap');
-var Readable = require('stream').Readable;
 var port = 5683;
 var server;
 var payload = '</1>,</2>,</3>,</4>,</5>';
+var ep = 'test';
+var location;
 
-describe('Client registration', function() {
-
+describe('Registration', function() {
   beforeEach(function (done) {
     server = lwm2m.createServer({ type: 'udp4' });
     server.on('error', done);
     server.listen(port, done);
   });
-
   afterEach(function(done) {
     server.close(done);
   });
 
-  describe('when missing endpoint name in request', function() {
-    it('should fail with a 4.00 Bad Request', function(done) {
+  describe('#register', function() {
+    it('should fail with a 4.00 Bad Request when missing endpoint name', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
@@ -63,15 +61,10 @@ describe('Client registration', function() {
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
     });
-  });
 
-  describe('when missing lifetime name in request', function () {
-    it('should return a 2.01 Created', function(done) {
+    it('should return a 2.01 Created when missing lifetime', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
@@ -89,14 +82,9 @@ describe('Client registration', function() {
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
     });
-  });
 
-  describe('when a valid request', function() {
     it('should return a 2.01 Created', function(done) {
       var req = coap.request({
         host: 'localhost',
@@ -115,10 +103,7 @@ describe('Client registration', function() {
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
     });
 
     it('should emit register event with query params', function (done) {
@@ -143,10 +128,7 @@ describe('Client registration', function() {
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
     });
 
     it('should set Location-Path Option', function (done) {
@@ -163,21 +145,14 @@ describe('Client registration', function() {
       });
 
       req.on('response', function(res) {
-        res.options.length.should.equal(1);
-        res.options[0].name.should.equal('Location-Path');
-        res.options[0].value.should.match(/rd\/\w+/);
+        res.headers['Location-Path'].should.match(/rd\/\w+/);
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
     });
-  });
 
-  describe('when a valid request but unknown endpoint', function () {
-    it('should fail with a 4.00 Bad Request', function(done) {
+    it('should fail with a 4.00 Bad Request for unknown endpoint', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
@@ -195,12 +170,123 @@ describe('Client registration', function() {
         done();
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
 
     });
   });
 
+  describe('#update', function() {
+
+    beforeEach(function (done) {
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      req.on('response', function(res) {
+        location = res.headers['Location-Path'];
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    describe('when a valid request', function() {
+      it('should return a 2.04 Changed', function(done) {
+        var req = coap.request({
+          host: 'localhost',
+          port: port,
+          method: 'POST',
+          pathname: location,
+          query: 'lt=86400&lwm2m=1.0&b=U'
+        });
+
+        server.on('update', function(params, accept) {
+          accept();
+        });
+
+        req.on('response', function(res) {
+          res.code.should.equal('2.04');
+          done();
+        });
+
+        req.end(payload);
+      });
+    });
+  });
+
+  describe('#deregister', function() {
+    beforeEach(function(done) {
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+      });
+
+      req.on('response', function(res) {
+        location = res.headers['Location-Path'];
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should return a 2.02 Deleted', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: location
+      });
+      var params;
+
+      server.on('unregister', function(location, callback) {
+        params = location;
+        callback();
+      });
+
+      req.on('response', function(res) {
+        params.should.be.equal(location);
+        res.code.should.equal('2.02');
+        done();
+      });
+
+      req.end();
+    });
+
+    it('should return a 4.04 Not found for unknown client', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: '/rd/136'
+      });
+
+      server.on('unregister', function(location, callback) {
+        should.fail('calling user handler for a bad request');
+        callback();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.04');
+        done();
+      });
+
+      req.end();
+    });
+  });
 });
+

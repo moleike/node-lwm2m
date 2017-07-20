@@ -32,13 +32,13 @@ contentFormats.formats.forEach(function(format) {
 });
 
 exports.schemas = [
-  Schema(require('./oma/security.json')),
-  Schema(require('./oma/server.json')),
-  Schema(require('./oma/acl.json')),
-  Schema(require('./oma/device.json')),
+  Schema(require('./lib/oma/security.json')),
+  Schema(require('./lib/oma/server.json')),
+  Schema(require('./lib/oma/acl.json')),
+  Schema(require('./lib/oma/device.json')),
   ,
   ,
-  Schema(require('./oma/location.json'))
+  Schema(require('./lib/oma/location.json'))
 ];
 
 exports.createServer = require('./lib/server');
