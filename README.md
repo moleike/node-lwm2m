@@ -1,5 +1,10 @@
 # node-lwm2m
 
+[![build status][travis-image]][travis-url]
+
+[travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg?style=flat-square
+[travis-url]: https://travis-ci.org/moleike/node-lwm2m
+
 WIP
 
 [node-lwm2m][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).

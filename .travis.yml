@@ -1,18 +1,15 @@
 language: node_js
-
+os:
+ - linux
 node_js:
- - "0.10"
+  - "8"
+  - "6"
+  - "4"
 
 branches:
   only:
     - develop
-    - master
-
-services:
- - mongodb
 
 install:
  - npm install
 
-before_install:
- - npm install -g grunt-cli
