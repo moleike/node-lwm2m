@@ -13,7 +13,7 @@ This is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonica
 
 This module requires Node.js 0.10.8+.
 
-[self]: https://github.com/muoren/node-lwm2m.git
+[self]: https://github.com/moleike/node-lwm2m.git
 
 ## What is LWM2M?
 
