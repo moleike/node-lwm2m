@@ -25,7 +25,7 @@
 
 var should = require('should');
 var url = require('url');
-var lwm2m = require('../../../');
+var lwm2m = require('../../');
 var coap = require('coap');
 var Readable = require('readable-stream').Readable;
 var Writable = require('readable-stream').Writable;
@@ -35,7 +35,7 @@ var server, client;
 var payload = '</1>,</2>,</3>,</4>,</5>';
 var ep = 'test';
 
-describe('Information Reporting' , function() {
+describe('Information Reporting', function() {
 
   beforeEach(function (done) {
     server = lwm2m.createServer({ type: 'udp4' });
@@ -55,15 +55,12 @@ describe('Information Reporting' , function() {
         query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
-
       req.on('response', function(res) {
         res.code.should.equal('2.01');
         client.listen(res.outSocket.port, done);
       });
+
+      req.end(payload);
     });
   });
 
@@ -90,11 +87,11 @@ describe('Information Reporting' , function() {
 
         setTimeout(function() {
           res.end();
+          done();
         }, 500);
 
         res.on('finish', function(err) {
           clearInterval(interval);
-          done();
         });
 
       });
@@ -104,14 +101,13 @@ describe('Information Reporting' , function() {
         stream.should.be.an.instanceof(Stream);
         stream.on('data', function(chunk) {
           chunk.should.be.equal('test');
-          stream.close();
         });
         stream.on('error', done);
       })
       .catch(done);
     });
 
-    it('should emit and `end` event when client stops sending data', function(done) {
+    it('should emit an `end` event when closing the stream', function(done) {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         req.headers['Observe'].should.equal(0);
@@ -119,18 +115,12 @@ describe('Information Reporting' , function() {
         res.should.be.an.instanceof(Writable);
         res.setOption('Content-Format', 'text/plain');
         res.code = '2.05';
+        res.write('test');
 
-        var interval = setInterval(function() {
+        setTimeout(function() {
           res.write('test');
         }, 50);
 
-        setTimeout(function() {
-          res.end();
-        }, 500);
-
-        res.on('finish', function(err) {
-          clearInterval(interval);
-        });
       });
 
       server.observe(ep, '/3/4')
@@ -153,7 +143,7 @@ describe('Information Reporting' , function() {
   });
 
   describe('#cancel()', function() {
-    it('should stop receiving data', function(done) {
+    it('should stop receiving data', function() {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         req.headers['Observe'].should.equal(1);
@@ -161,11 +151,8 @@ describe('Information Reporting' , function() {
         res.end();
       });
 
-      server.cancel(ep, '/3/4')
-      .then(function() {
-        done();
-      })
-      .catch(done);
+      return server.cancel(ep, '/3/4')
+        .should.be.fulfilled();
     });
   });
 });
