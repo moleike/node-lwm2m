@@ -56,10 +56,7 @@ describe('Device management' , function() {
         query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
       });
 
-      var rs = new Readable();
-      rs.push(payload);
-      rs.push(null);
-      rs.pipe(req);
+      req.end(payload);
 
       req.on('response', function(res) {
         res.code.should.equal('2.01');
@@ -98,7 +95,7 @@ describe('Device management' , function() {
       });
     });
 
-    it('should respond with matching resource', function(done) {
+    it('should respond with matching resource', function() {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
         res.setOption('Content-Format', 'text/plain');
@@ -106,12 +103,8 @@ describe('Device management' , function() {
         res.end('test');
       });
 
-      server.read(ep, '42/3/5', { schema: schema },  function(err, result) {
-        should.not.exist(err);
-        should.exist(result);
-        result.should.equal('test');
-        done();
-      });
+      server.read(ep, '42/3/5', { schema: schema })
+      .should.eventually.be.equal('test');
     });
 
     it('should read current time in device object', function(done) {
