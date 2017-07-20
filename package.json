@@ -18,7 +18,7 @@
     "node": ">=4"
   },
   "scripts": {
-    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive"
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive && codecov"
   },
   "dependencies": {
     "coap": "^0.21.0",
@@ -27,6 +27,7 @@
     "readable-stream": "^2.2.11"
   },
   "devDependencies": {
+    "codecov": "^2.2.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.4.2",
     "should": "^8.4.0"
