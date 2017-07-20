@@ -26,10 +26,10 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    Schema = require('../../../').Schema;
+    Schema = require('../').Schema;
 
 describe('LWM2M Object Schema', function() {
-  describe('constructor', function() {
+  describe('#constructor', function() {
 
     it('should not throw on a valid schema', function() {
       var def = {
@@ -73,7 +73,7 @@ describe('LWM2M Object Schema', function() {
     });
   });
 
-  describe('validate', function() {
+  describe('#validate', function() {
 
     it('should be ok when an object matches an schema', function() {
       var schema = new Schema({

@@ -25,7 +25,7 @@
 
 var should = require('should');
 var url = require('url');
-var lwm2m = require('../../../');
+var lwm2m = require('../../');
 var coap = require('coap');
 var Readable = require('readable-stream').Readable;
 var port = 5683;
@@ -40,8 +40,8 @@ var schema = lwm2m.Schema({
 describe('Device management' , function() {
 
   beforeEach(function (done) {
-    server = lwm2m.createServer({ type: 'udp4' });
-    client = coap.createServer({ type: 'udp4' });
+    server = lwm2m.createServer();
+    client = coap.createServer();
     server.on('error', done);
     server.on('register', function(params, accept) {
       accept();
@@ -114,6 +114,28 @@ describe('Device management' , function() {
       });
     });
 
+    it('should read current time in device object', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        res.setOption('Content-Format', 'application/vnd.oma.lwm2m+json');
+        res.code = '2.05';
+
+        var rs = new Readable();
+        rs.push('{"e":[');
+        rs.push('{"n":"13","v":42}');
+        rs.push(']}');
+        rs.push(null);
+        rs.pipe(res);
+      });
+
+      server.read(ep, '/3/0', function(err, result) {
+        should.not.exist(err);
+        should.exist(result);
+        result.should.have.properties({ currentTime: 42 })        
+        done();
+      });
+    });
+
     it('should respond with an 4.04 when resource not found', function(done) {
       client.on('request', function (req, res) {
         req.method.should.equal('GET');
@@ -150,6 +172,33 @@ describe('Device management' , function() {
   });
 
   describe('#write()', function() {
+    it('should update current time in device object', function(done) {
+      client.on('request', function (req, res) {
+        var payload = req.payload.toString();
+
+        req.method.should.equal('POST');
+
+        payload.should.startWith('{"e":[');
+        payload.should.match(/{"n":"13","v":42}/);
+        payload.should.endWith(']}');
+
+        res.code = '2.04';
+        res.end();
+
+        done();
+      });
+
+      var value = {
+        currentTime: 42
+      };
+
+      var options = {
+        format: 'json'
+      };
+
+      server.write(ep, '/3/0', value, options);
+    });
+
     it('should send an encoded payload', function(done) {
       client.on('request', function (req, res) {
         var payload = req.payload.toString();
@@ -175,7 +224,7 @@ describe('Device management' , function() {
         bar: 42
       };
 
-      server.write(ep, '/3/4', value, options, function(err) {
+      server.write(ep, '/3/0', value, options, function(err) {
         should.not.exist(err);
         done();
       });

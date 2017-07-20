@@ -26,9 +26,9 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    tlv = require('../../../lib/tlv'),
-    Schema = require('../../..').Schema,
-    deviceSchema = new Schema(require('../../../oma/device'));
+    tlv = require('../lib/tlv'),
+    Schema = require('../').Schema,
+    deviceSchema = new Schema(require('../lib/oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',
@@ -63,8 +63,8 @@ var payload = new Buffer([
   0xc6, 0x0e, 0x2b, 0x30, 0x32, 0x3a, 0x30, 0x30, 0xc1, 0x10,
   0x55 ]);
 
-describe('De/serializing LWM2M Objects from/into TLV', function() {
-  describe('serialize', function() {
+describe('application/vnd.oma.lwm2m+tlv', function() {
+  describe('#serialize', function() {
     it('should return a valid payload', function() {
       var dev = tlv.serialize(object, deviceSchema);
 
@@ -73,7 +73,7 @@ describe('De/serializing LWM2M Objects from/into TLV', function() {
     });
   });
 
-  describe('parse', function() {
+  describe('#parse', function() {
     it('should return a valid object', function() {
       var dev = tlv.parse(payload, deviceSchema);
 

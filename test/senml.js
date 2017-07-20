@@ -26,9 +26,9 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    senml = require('../../../lib/senml'),
-    Schema = require('../../..').Schema,
-    deviceSchema = new Schema(require('../../../oma/device'));
+    senml = require('../lib/senml'),
+    Schema = require('../').Schema,
+    deviceSchema = new Schema(require('../lib/oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',
@@ -64,9 +64,9 @@ var payload = '{"e":[' +
   '{"n":"14","sv":"+02:00"},' +
   '{"n":"15","sv":"U"}]}';
 
-describe('De/serializing LWM2M Objects from/into JSON', function() {
+describe('application/vnd.oma.lwm2m+json', function() {
 
-  describe('serialize', function() {
+  describe('#serialize', function() {
     it('should return a valid payload', function() {
       var dev = senml.serialize(object, deviceSchema);
 
@@ -74,7 +74,7 @@ describe('De/serializing LWM2M Objects from/into JSON', function() {
     });
   });
 
-  describe('parse', function() {
+  describe('#parse', function() {
     it('should return an object', function() {
       var dev = senml.parse(payload, deviceSchema);
 
