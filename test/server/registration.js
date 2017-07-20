@@ -39,7 +39,9 @@ describe('Registration', function() {
     server.listen(port, done);
   });
   afterEach(function(done) {
-    server.close(done);
+    setImmediate(function() {
+      server.close(done);
+    });
   });
 
   describe('#register', function() {
@@ -64,13 +66,13 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    it('should return a 2.01 Created when missing lifetime', function(done) {
+    it('should return a 2.01 Created', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lwm2m=1.0&b=U'
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
       });
 
       server.on('register', function(params, accept) {
@@ -85,13 +87,13 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    it('should return a 2.01 Created', function(done) {
+    it('should return a 2.01 Created when missing lifetime', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=test&lwm2m=1.0&b=U'
       });
 
       server.on('register', function(params, accept) {
@@ -152,7 +154,7 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    it('should fail with a 4.00 Bad Request for unknown endpoint', function(done) {
+    it('should fail with a 4.00 Bad Request when user rejects endpoint', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
@@ -198,27 +200,25 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    describe('when a valid request', function() {
-      it('should return a 2.04 Changed', function(done) {
-        var req = coap.request({
-          host: 'localhost',
-          port: port,
-          method: 'POST',
-          pathname: location,
-          query: 'lt=86400&lwm2m=1.0&b=U'
-        });
-
-        server.on('update', function(params, accept) {
-          accept();
-        });
-
-        req.on('response', function(res) {
-          res.code.should.equal('2.04');
-          done();
-        });
-
-        req.end(payload);
+    it('should return a 2.04 Changed', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: location,
+        query: 'lt=86400&lwm2m=1.0&b=U'
       });
+
+      server.on('update', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.04');
+        done();
+      });
+
+      req.end(payload);
     });
   });
 

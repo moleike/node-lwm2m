@@ -28,10 +28,6 @@ var lwm2m = require('../');
 var utils = require('../lib/utils');
 var registry, location;
 
-process.on('unhandledRejection', function(reason) {
-  console.log('Reason: ' + reason);
-});
-
 describe('Device registry', function() {
   beforeEach(function(done) {
     registry = new lwm2m.Registry();

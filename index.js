@@ -26,9 +26,14 @@
 var coap = require('coap');
 var contentFormats = require('./lib/contentFormats');
 var Schema = exports.Schema = require('./lib/schema');
+var debug = require('debug')('lwm2m');
 
 contentFormats.formats.forEach(function(format) {
   coap.registerFormat(format.name, format.value);
+});
+
+process.on('unhandledRejection', function(reason) {
+  debug('Unhandled rejection: ' + reason);
 });
 
 exports.schemas = [
@@ -42,5 +47,6 @@ exports.schemas = [
 ];
 
 exports.createServer = require('./lib/server');
+exports.bootstrap = require('./lib/server/bootstrap');
 exports.Registry = require('./lib/server/registry');
 
