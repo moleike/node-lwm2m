@@ -5,11 +5,13 @@ node_js:
   - "8"
   - "6"
   - "4"
-
 branches:
   only:
     - develop
-
 install:
- - npm install
+  - npm install
+test:
+  - npm test
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
