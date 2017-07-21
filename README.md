@@ -15,8 +15,6 @@ WIP
 
 This is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation. Considerable work has been done so that it is now a distinct project.
 
-This module requires Node.js 0.10.8+.
-
 [self]: https://github.com/moleike/node-lwm2m.git
 
 ## What is LWM2M?
@@ -26,6 +24,25 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
 ## Install
 
     npm install --save lwm2m
+    
+## Synopsis
+  
+```js
+var server = require('lwm2m').createServer();
+
+server.on('register', function(params, accept) {
+  setImmediate(function() {
+    server
+    .read(params.ep, '3/0')
+    .then(function(device) {
+      console.log(JSON.stringify(device, null, 4));
+    })
+  });
+  accept();
+});
+
+server.listen(5683);
+```
     
 ## API
 
@@ -53,11 +70,9 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
 
   Options:
   
-  - `lifetimeCheckInterval`: time in ms to purge a device from the registry if it didn't update it's registration,
-  - `defaultType`: the type of device, defaults to 'Device',
+
   - `type`: indicates if the server should create IPv4 connections (udp4) or IPv6 connections (udp6). Defaults to udp6.
-  - `deviceRegistry`: specifies a MongoDB connection. If not provided will run an in-memory registry.
-  - `schemas`: default schemas to use.
+  - `deviceRegistry`: defaults to an in-memory registry.
   - `piggybackReplyMs`: set the number of milliseconds to wait for a piggyback response. Default 50.
   
   Events:
@@ -66,37 +81,7 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
   - `update`: device registration update.
   - `unregister`: device unregistration.
   
-  Examples:
-  
-```js
-var server = lwm2m.createServer({
-  lifetimeCheckInterval: 300 * 1e3,
-  defaultType: 'Device',
-  type : 'udp6',
-  deviceRegistry: {
-    type: 'mongodb',
-    host: 'localhost',
-    port: '27017',
-    db: 'lwm2m'
-  },
-  schemas: {
-    '/3': lwm2m.Schema(require('lwm2m/oma/device.json')),
-  }
-});
- 
-server.on('register', function(params, payload, accept) {
-  console.log('endpoint %s contains %s', params.ep, payload);
-  accept();
-});
 
-// the default CoAP port is 5683
-server.listen(function() {
-
-  server.read('dev0', /3/0, callback(err, val) {
-    console.log(val.manufacturer);
-  });
-})
-```
   
 ## listen(port:Number)
 
