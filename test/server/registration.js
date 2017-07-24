@@ -209,12 +209,42 @@ describe('Registration', function() {
         query: 'lt=86400&lwm2m=1.0&b=U'
       });
 
-      server.on('update', function(params, accept) {
-        accept();
+      req.on('response', function(res) {
+        res.code.should.equal('2.04');
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should emit the `update` event', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: location,
+        query: 'lt=86400&lwm2m=1.0&b=U'
+      });
+
+      server.on('update', function(loc) {
+        location.should.endWith(loc);
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should fail with a 4.04 Not Found when unknown location', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd/136',
+        query: 'lt=86400&lwm2m=1.0&b=U'
       });
 
       req.on('response', function(res) {
-        res.code.should.equal('2.04');
+        res.code.should.equal('4.04');
         done();
       });
 
@@ -251,15 +281,8 @@ describe('Registration', function() {
         method: 'DELETE',
         pathname: location
       });
-      var params;
-
-      server.on('unregister', function(location, callback) {
-        params = location;
-        callback();
-      });
 
       req.on('response', function(res) {
-        params.should.be.equal(location);
         res.code.should.equal('2.02');
         done();
       });
@@ -267,17 +290,28 @@ describe('Registration', function() {
       req.end();
     });
 
-    it('should return a 4.04 Not found for unknown client', function(done) {
+    it('should emit the `deregister` event', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: location
+      });
+
+      server.on('deregister', function(loc) {
+        location.should.endWith(loc);
+        done();
+      });
+
+      req.end();
+    });
+
+    it('should return a 4.04 Not Found for unknown client', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'DELETE',
         pathname: '/rd/136'
-      });
-
-      server.on('unregister', function(location, callback) {
-        should.fail('calling user handler for a bad request');
-        callback();
       });
 
       req.on('response', function(res) {
