@@ -3,6 +3,8 @@
 [![build status][travis-image]][travis-url]
 [![build status][appveyor-image]][appveyor-url]
 [![codecov][codecov-image]][codecov-url]
+[![Gitter][gitter-image]][gitter-url]
+
 
 [travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg?style=flat-square
 [travis-url]: https://travis-ci.org/moleike/node-lwm2m
@@ -10,6 +12,8 @@
 [appveyor-url]: https://ci.appveyor.com/project/moleike/node-lwm2m
 [codecov-image]: https://img.shields.io/codecov/c/github/moleike/node-lwm2m.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/moleike/node-lwm2m
+[gitter-image]: https://img.shields.io/gitter/room/moleike/node-lwm2m.svg?style=flat-square
+[gitter-url]: https://gitter.im/node-lwm2m/Lobby
 
 WIP
 
