@@ -26,9 +26,9 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    tlv = require('../lib/tlv'),
-    Schema = require('../').Schema,
-    deviceSchema = new Schema(require('../lib/oma/device'));
+  tlv = require('../lib/tlv'),
+  Schema = require('../').Schema,
+  deviceSchema = new Schema(require('../lib/oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',

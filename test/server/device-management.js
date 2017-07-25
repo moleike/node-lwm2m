@@ -104,7 +104,7 @@ describe('Device management' , function() {
       });
 
       server.read(ep, '42/3/5', { schema: schema })
-      .should.eventually.be.equal('test');
+        .should.eventually.be.equal('test');
     });
 
     it('should read current time in device object', function(done) {
@@ -124,7 +124,7 @@ describe('Device management' , function() {
       server.read(ep, '/3/0', function(err, result) {
         should.not.exist(err);
         should.exist(result);
-        result.should.have.properties({ currentTime: 42 })        
+        result.should.have.properties({ currentTime: 42 });        
         done();
       });
     });
@@ -257,7 +257,7 @@ describe('Device management' , function() {
           .reduce(function(attr, cur) { 
             var pair = cur.split('='); 
             attr[pair[0]] = pair[1]; 
-            return attr 
+            return attr; 
           }, {});
 
         attr.should.have.keys('pmin', 'pmax', 'lt');

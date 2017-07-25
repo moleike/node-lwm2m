@@ -26,9 +26,9 @@
 'use strict';
 
 var should = require('should'), // jshint ignore:line
-    senml = require('../lib/senml'),
-    Schema = require('../').Schema,
-    deviceSchema = new Schema(require('../lib/oma/device'));
+  senml = require('../lib/senml'),
+  Schema = require('../').Schema,
+  deviceSchema = new Schema(require('../lib/oma/device'));
 
 var object = { 
   manufacturer: 'Open Mobile Alliance',
@@ -83,7 +83,7 @@ describe('application/vnd.oma.lwm2m+json', function() {
 
     it('should strictly return matching resources from schema', function() {
       var dev = senml.parse(payload, deviceSchema),
-          keys = Object.keys(deviceSchema.resources);
+        keys = Object.keys(deviceSchema.resources);
 
       Object.keys(dev).should.matchEach(function(it) { 
         return it.should.be.oneOf(keys);

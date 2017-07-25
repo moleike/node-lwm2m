@@ -97,14 +97,14 @@ describe('Information Reporting', function() {
       });
 
       server.observe(ep, '/3/4')
-      .then(function(stream) {
-        stream.should.be.an.instanceof(Stream);
-        stream.on('data', function(chunk) {
-          chunk.should.be.equal('test');
-        });
-        stream.on('error', done);
-      })
-      .catch(done);
+        .then(function(stream) {
+          stream.should.be.an.instanceof(Stream);
+          stream.on('data', function(chunk) {
+            chunk.should.be.equal('test');
+          });
+          stream.on('error', done);
+        })
+        .catch(done);
     });
 
     it('should emit an `end` event when closing the stream', function(done) {
@@ -124,21 +124,21 @@ describe('Information Reporting', function() {
       });
 
       server.observe(ep, '/3/4')
-      .then(function(stream) {
-        stream.should.be.an.instanceof(Stream);
+        .then(function(stream) {
+          stream.should.be.an.instanceof(Stream);
 
-        stream.on('data', function(chunk) {
-          chunk.should.be.equal('test');
-          stream.close();
-        });
+          stream.on('data', function(chunk) {
+            chunk.should.be.equal('test');
+            stream.close();
+          });
 
-        stream.on('end', function() {
-          done();
-        });
+          stream.on('end', function() {
+            done();
+          });
 
-        stream.on('error', done);
-      })
-      .catch(done);
+          stream.on('error', done);
+        })
+        .catch(done);
     });
   });
 
