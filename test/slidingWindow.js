@@ -24,28 +24,28 @@
 'use strict';
 
 var Window = require('../lib/slidingWindow'),
-    assert = require('assert');
+  assert = require('assert');
 
 describe('Sliding windows test', function() {
-    var window;
+  var window;
 
+  beforeEach(function() {
+    window = new Window(5);
+    for (var i = 0; i < 5; i++) {
+      window.push(i);
+    }
+  });
+
+  describe('When a new value is inserted in the sliding window', function() {
     beforeEach(function() {
-        window = new Window(5);
-        for (var i = 0; i < 5; i++) {
-            window.push(i);
-        }
+      window.push(6);
     });
 
-    describe('When a new value is inserted in the sliding window', function() {
-        beforeEach(function() {
-            window.push(6);
-        });
-
-        it('should be contained in the window', function() {
-            assert(window.contains(6));
-        });
-        it('should remove one of the older values from the window', function() {
-            assert(!window.contains(1));
-        });
+    it('should be contained in the window', function() {
+      assert(window.contains(6));
     });
+    it('should remove one of the older values from the window', function() {
+      assert(!window.contains(1));
+    });
+  });
 });
