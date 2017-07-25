@@ -36,11 +36,11 @@ describe('Device registry', function() {
       ep: 'test', 
       lt: 300
     })
-    .then(function(loc) {
-      location = loc;
-      done();
-    })
-    .catch(done);
+      .then(function(loc) {
+        location = loc;
+        done();
+      })
+      .catch(done);
   });
 
   describe('#register', function() {
@@ -58,13 +58,13 @@ describe('Device registry', function() {
         foo: 'test',
         bar: 42
       })
-      .then(function(loc) {
-        return registry.get(loc)
-      })
-      .should.have.eventually.properties([ 
-        'foo',
-        'bar' 
-      ]);
+        .then(function(loc) {
+          return registry.get(loc);
+        })
+        .should.have.eventually.properties([ 
+          'foo',
+          'bar' 
+        ]);
     });
 
     it('should be ok to register an existing client', function() {
@@ -79,64 +79,64 @@ describe('Device registry', function() {
         ep: 'foo',
         lt: 0,
       })
-      .then(function(loc) {
-        return utils.setTimeoutPromise(1, loc);
-      })
-      .then(function(loc) {
-        return registry.get(loc)
-      })
-      .should.be.rejectedWith(/not found/);
+        .then(function(loc) {
+          return utils.setTimeoutPromise(1, loc);
+        })
+        .then(function(loc) {
+          return registry.get(loc);
+        })
+        .should.be.rejectedWith(/not found/);
     });
   });
 
   describe('#unregister', function() {
     it('should return the client', function() {
       return registry.unregister(location)
-      .should.have.eventually.properties({ ep: 'test' })
+        .should.have.eventually.properties({ ep: 'test' });
     });
 
     it('should return an error if location is unknown', function() {
       return registry.unregister(123)
-      .should.be.rejectedWith(/not found/);
+        .should.be.rejectedWith(/not found/);
     });
   });
 
   describe('#update', function() {
     it('should update client registration params', function() {
       return registry.update(location, { lt: 100 })
-      .then(function(loc) {
-        return registry.get(loc);
-      })
-      .should.have.eventually.properties({ lt: 100 })
+        .then(function(loc) {
+          return registry.get(loc);
+        })
+        .should.have.eventually.properties({ lt: 100 });
     });
 
     it('should return an error if location is unknown', function() {
       return registry.update(123, { lt: 100 })
-      .should.be.rejectedWith(/not found/);
+        .should.be.rejectedWith(/not found/);
     });
   });
 
   describe('#get', function() {
     it('should return the client by location', function() {
       return registry.get(location)
-      .should.eventually.have.property('ep').eql('test');
+        .should.eventually.have.property('ep').eql('test');
     });
 
     it('should return an error if location is unknown', function() {
       return registry.get(123)
-      .should.be.rejectedWith(/not found/);
+        .should.be.rejectedWith(/not found/);
     });
   });
 
   describe('#find', function() {
     it('should return the client by endpoint ep', function() {
       return registry.find('test')
-      .should.eventually.have.property('ep').eql('test');
+        .should.eventually.have.property('ep').eql('test');
     });
 
     it('should return an error if endpoint ep is unknown', function() {
       return registry.find('foo')
-      .should.be.rejectedWith(/not found/);
+        .should.be.rejectedWith(/not found/);
     });
   });
 });
