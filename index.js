@@ -23,30 +23,4 @@
 
 'use strict';
 
-var coap = require('coap');
-var contentFormats = require('./lib/contentFormats');
-var Schema = exports.Schema = require('./lib/schema');
-var debug = require('debug')('lwm2m');
-
-contentFormats.formats.forEach(function(format) {
-  coap.registerFormat(format.name, format.value);
-});
-
-process.on('unhandledRejection', function(reason) {
-  debug('Unhandled rejection: ' + reason);
-});
-
-exports.schemas = [
-  Schema(require('./lib/oma/security.json')),
-  Schema(require('./lib/oma/server.json')),
-  Schema(require('./lib/oma/acl.json')),
-  Schema(require('./lib/oma/device.json')),
-  ,
-  ,
-  Schema(require('./lib/oma/location.json'))
-];
-
-exports.createServer = require('./lib/server');
-exports.bootstrap = require('./lib/server/bootstrap');
-exports.Registry = require('./lib/server/registry');
-
+module.exports = require('./lib');

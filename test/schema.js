@@ -36,7 +36,7 @@ describe('LWM2M Object Schema', function() {
         a: { type: String, id: 0 },
         b: { type: Number, id: 1 },
         c: { type: [Boolean], id: 2 },
-        d: { type: Buffer, id:3 }
+        d: { type: Buffer, id:3 },
       };
 
       function validate() {
@@ -49,7 +49,7 @@ describe('LWM2M Object Schema', function() {
     it('should throw on invalid types', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: { type: Date, id: 1 }
+        b: { type: Date, id: 1 },
       };
 
       function validate() {
@@ -62,7 +62,7 @@ describe('LWM2M Object Schema', function() {
     it('should throw on invalid resources', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: 'foo'
+        b: 'foo',
       };
 
       function validate() {
@@ -78,7 +78,7 @@ describe('LWM2M Object Schema', function() {
     it('should be ok when an object matches an schema', function() {
       var schema = new Schema({
         a: { type: String, id: 0 },
-        b: { type: Number, id: 1 }
+        b: { type: Number, id: 1 },
       });
 
       function validate() {
@@ -111,7 +111,7 @@ describe('LWM2M Object Schema', function() {
       var schema = new Schema({
         a: { type: String, id: 0 },
         b: { type: Number, id: 1, required: true },
-        c: { type: Boolean, id: 1 }
+        c: { type: Boolean, id: 1 },
       });
 
       function validate() {
@@ -128,7 +128,7 @@ describe('LWM2M Object Schema', function() {
 
       def.b.range = { 
         min: 1, 
-        max: 10 
+        max: 10, 
       };
 
       var schema = new Schema(def);
@@ -149,7 +149,7 @@ describe('LWM2M Object Schema', function() {
       def.a.enum = [
         'bar', 
         'baz', 
-        'qux'
+        'qux',
       ];
 
       var schema = new Schema(def);

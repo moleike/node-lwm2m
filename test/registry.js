@@ -34,7 +34,7 @@ describe('Device registry', function() {
 
     registry.register({ 
       ep: 'test', 
-      lt: 300
+      lt: 300,
     })
       .then(function(loc) {
         location = loc;
@@ -56,14 +56,14 @@ describe('Device registry', function() {
         ep: 'foo',
         lt: 300,
         foo: 'test',
-        bar: 42
+        bar: 42,
       })
         .then(function(loc) {
           return registry.get(loc);
         })
         .should.have.eventually.properties([ 
           'foo',
-          'bar' 
+          'bar', 
         ]);
     });
 
