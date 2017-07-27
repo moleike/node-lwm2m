@@ -21,7 +21,9 @@
     "test": "istanbul cover _mocha -- --recursive && codecov",
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
     "pretest": "npm run lint", 
-    "prepublish": "npm run test"
+    "prepublish": "npm run test",
+    "preversion": "npm run test",
+    "postversion": "git push origin && git push origin --tags"
   },
   "dependencies": {
     "coap": "^0.21.0",
