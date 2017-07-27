@@ -1,14 +1,29 @@
 {
     "env": {
         "node": true,
-        "mocha": true,
-        "es6": true
+        "mocha": true
+    },
+    "globals": {
+        "Promise": true,
+        "Symbol": true
     },
     "extends": "eslint:recommended",
     "rules": {
+        "no-unused-vars": [
+            "error", 
+            { 
+                "varsIgnorePattern": "^should$",
+                "argsIgnorePattern": "^res$"
+            }
+        ],
+        "no-tabs": "error",
         "indent": [
             "error",
             2
+        ],
+        "comma-dangle": [
+            "error",
+            "always-multiline"
         ],
         "linebreak-style": [
             "error",
@@ -21,6 +36,10 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "no-sparse-arrays": "off",
+        "no-invalid-this": "error",
+        "no-use-before-define": "error",
+        "handle-callback-err": "error"
     }
 }
