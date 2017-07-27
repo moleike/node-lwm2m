@@ -43,7 +43,7 @@ var object = {
   errorCode: [ 0 ],
   currentTime: 1367491215,
   utcOffset: '+02:00',
-  binding: 'U' 
+  binding: 'U', 
 };
 
 // The total payload size with the TLV encoding is 121 bytes

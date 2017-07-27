@@ -24,19 +24,16 @@
 'use strict';
 
 var should = require('should');
-var url = require('url');
 var lwm2m = require('../../');
 var bootstrap = lwm2m.bootstrap;
 var coap = require('coap');
-var Readable = require('readable-stream').Readable;
 var port = 5683;
 var server, client;
-var payload = '</1>,</2>,</3>,</4>,</5>';
 var ep = 'test';
 
 var schema = lwm2m.Schema({
   foo : { id: 5, type: 'String' },
-  bar : { id: 6, type: 'Number' }
+  bar : { id: 6, type: 'Number' },
 });
 
 describe('Bootstrap', function() {
@@ -65,7 +62,7 @@ describe('Bootstrap', function() {
         port: port,
         method: 'POST',
         pathname: '/bs',
-        query: 'ep=' + ep
+        query: 'ep=' + ep,
       });
 
       req.end();
@@ -86,7 +83,7 @@ describe('Bootstrap', function() {
         port: port,
         method: 'POST',
         pathname: '/bs',
-        query: 'ep=' + ep
+        query: 'ep=' + ep,
       });
 
       req.end();
@@ -109,7 +106,7 @@ describe('Bootstrap', function() {
         port: port,
         method: 'POST',
         pathname: '/bs',
-        query: 'ep=' + ep
+        query: 'ep=' + ep,
       });
 
       req.end();
@@ -137,12 +134,12 @@ describe('Bootstrap', function() {
 
       var options = { 
         schema: schema, 
-        format: 'json'
+        format: 'json',
       };
 
       var value = {
         foo: 'test',
-        bar: 42
+        bar: 42,
       };
 
       server.write(ep, '/3/4', value, options, function(err) {
@@ -163,7 +160,7 @@ describe('Bootstrap', function() {
         port: port,
         method: 'POST',
         pathname: '/bs',
-        query: 'ep=' + ep
+        query: 'ep=' + ep,
       });
 
       req.end();
@@ -181,7 +178,7 @@ describe('Bootstrap', function() {
         res.end();
       });
 
-      server.delete(ep, '/3/4', function(err, result) {
+      server.delete(ep, '/3/4', function(err) {
         should.not.exist(err);
         done();
       });
@@ -210,7 +207,7 @@ describe('Bootstrap', function() {
         port: port,
         method: 'POST',
         pathname: '/bs',
-        query: 'ep=' + ep
+        query: 'ep=' + ep,
       });
 
       req.end();

@@ -45,34 +45,13 @@ describe('Registration', function() {
   });
 
   describe('#register', function() {
-    it('should fail with a 4.00 Bad Request when missing endpoint name', function(done) {
+    it('should return a 2.01 Created when valid request', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'lt=86400&lwm2m=1.0&b=U'
-      });
-
-      server.on('register', function(params, accept) {
-        accept();
-      });
-
-      req.on('response', function(res) {
-        res.code.should.equal('4.00');
-        done();
-      });
-
-      req.end(payload);
-    });
-
-    it('should return a 2.01 Created', function(done) {
-      var req = coap.request({
-        host: 'localhost',
-        port: port,
-        method: 'POST',
-        pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U',
       });
 
       server.on('register', function(params, accept) {
@@ -87,13 +66,55 @@ describe('Registration', function() {
       req.end(payload);
     });
 
+    it('should fail with a 4.00 Bad Request when an illegal query', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U&bad',
+      });
+
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.00');
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should fail with a 4.00 Bad Request when missing endpoint name', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'lt=86400&lwm2m=1.0&b=U',
+      });
+
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.00');
+        done();
+      });
+
+      req.end(payload);
+    });
+
     it('should return a 2.01 Created when missing lifetime', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lwm2m=1.0&b=U'
+        query: 'ep=test&lwm2m=1.0&b=U',
       });
 
       server.on('register', function(params, accept) {
@@ -114,7 +135,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U',
       });
       var request = {};
 
@@ -139,7 +160,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U',
       });
 
       server.on('register', function(params, accept) {
@@ -160,7 +181,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U',
       });
 
       server.on('register', function(params, accept) {
@@ -177,6 +198,78 @@ describe('Registration', function() {
     });
   });
 
+  describe('#deregister', function() {
+    beforeEach(function(done) {
+      server.on('register', function(params, accept) {
+        accept();
+      });
+
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: '/rd',
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U',
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.01');
+        location = res.headers['Location-Path'];
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should return a 2.02 Deleted', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: location,
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.02');
+        done();
+      });
+
+      req.end();
+    });
+
+    it('should emit the `deregister` event', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: location,
+      });
+
+      server.on('deregister', function(loc) {
+        location.should.endWith(loc);
+        done();
+      });
+
+      req.end();
+    });
+
+    it('should return a 4.04 Not Found for unknown client', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'DELETE',
+        pathname: '/rd/136',
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.04');
+        done();
+      });
+
+      req.end();
+    });
+  });
+
   describe('#update', function() {
 
     beforeEach(function (done) {
@@ -189,7 +282,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U',
       });
 
       req.on('response', function(res) {
@@ -206,7 +299,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: location,
-        query: 'lt=86400&lwm2m=1.0&b=U'
+        query: 'lt=86400&lwm2m=1.0&b=U',
       });
 
       req.on('response', function(res) {
@@ -223,12 +316,16 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: location,
-        query: 'lt=86400&lwm2m=1.0&b=U'
+        query: 'lt=86400&lwm2m=1.0&b=U',
       });
 
       server.on('update', function(loc) {
         location.should.endWith(loc);
         done();
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('2.04');
       });
 
       req.end(payload);
@@ -240,7 +337,7 @@ describe('Registration', function() {
         port: port,
         method: 'POST',
         pathname: '/rd/136',
-        query: 'lt=86400&lwm2m=1.0&b=U'
+        query: 'lt=86400&lwm2m=1.0&b=U',
       });
 
       req.on('response', function(res) {
@@ -252,75 +349,5 @@ describe('Registration', function() {
     });
   });
 
-  describe('#deregister', function() {
-    beforeEach(function(done) {
-      server.on('register', function(params, accept) {
-        accept();
-      });
-
-      var req = coap.request({
-        host: 'localhost',
-        port: port,
-        method: 'POST',
-        pathname: '/rd',
-        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
-      });
-
-      req.on('response', function(res) {
-        location = res.headers['Location-Path'];
-        done();
-      });
-
-      req.end(payload);
-    });
-
-    it('should return a 2.02 Deleted', function(done) {
-      var req = coap.request({
-        host: 'localhost',
-        port: port,
-        method: 'DELETE',
-        pathname: location
-      });
-
-      req.on('response', function(res) {
-        res.code.should.equal('2.02');
-        done();
-      });
-
-      req.end();
-    });
-
-    it('should emit the `deregister` event', function(done) {
-      var req = coap.request({
-        host: 'localhost',
-        port: port,
-        method: 'DELETE',
-        pathname: location
-      });
-
-      server.on('deregister', function(loc) {
-        location.should.endWith(loc);
-        done();
-      });
-
-      req.end();
-    });
-
-    it('should return a 4.04 Not Found for unknown client', function(done) {
-      var req = coap.request({
-        host: 'localhost',
-        port: port,
-        method: 'DELETE',
-        pathname: '/rd/136'
-      });
-
-      req.on('response', function(res) {
-        res.code.should.equal('4.04');
-        done();
-      });
-
-      req.end();
-    });
-  });
 });
 

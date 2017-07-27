@@ -43,7 +43,7 @@ var object = {
   errorCode: [ 0 ],
   currentTime: 1367491215,
   utcOffset: '+02:00',
-  timeZone: 'U' 
+  timeZone: 'U', 
 };
 
 var payload = '{"e":[' +

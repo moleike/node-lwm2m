@@ -24,10 +24,8 @@
 'use strict';
 
 var should = require('should');
-var url = require('url');
 var lwm2m = require('../../');
 var coap = require('coap');
-var Readable = require('readable-stream').Readable;
 var Writable = require('readable-stream').Writable;
 var Stream = require('stream');
 var port = 5683;
@@ -52,7 +50,7 @@ describe('Information Reporting', function() {
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U'
+        query: 'ep=' + ep + '&lt=86400&lwm2m=1.0&b=U',
       });
 
       req.on('response', function(res) {
@@ -88,9 +86,10 @@ describe('Information Reporting', function() {
         setTimeout(function() {
           res.end();
           done();
-        }, 500);
+        }, 200);
 
         res.on('finish', function(err) {
+          should.not.exist(err);
           clearInterval(interval);
         });
 
@@ -116,11 +115,6 @@ describe('Information Reporting', function() {
         res.setOption('Content-Format', 'text/plain');
         res.code = '2.05';
         res.write('test');
-
-        setTimeout(function() {
-          res.write('test');
-        }, 50);
-
       });
 
       server.observe(ep, '/3/4')
