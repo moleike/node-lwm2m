@@ -66,13 +66,13 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    it('should fail with a 4.00 Bad Request when an illegal query', function(done) {
+    it('should fail with a 4.00 Bad Request when illegal query', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
         method: 'POST',
         pathname: '/rd',
-        query: 'ep=test&lt=86400&lwm2m=1.0&b=U&bad',
+        query: 'ep=test&lt=86400&lwm2m=1.0&b=U&bad=test',
       });
 
       server.on('register', function(params, accept) {
@@ -342,6 +342,23 @@ describe('Registration', function() {
 
       req.on('response', function(res) {
         res.code.should.equal('4.04');
+        done();
+      });
+
+      req.end(payload);
+    });
+
+    it('should fail with a 4.00 Bad Request when illegal query', function(done) {
+      var req = coap.request({
+        host: 'localhost',
+        port: port,
+        method: 'POST',
+        pathname: location,
+        query: 'lt=86400&lwm2m=1.0&b=U&bad=test',
+      });
+
+      req.on('response', function(res) {
+        res.code.should.equal('4.00');
         done();
       });
 
