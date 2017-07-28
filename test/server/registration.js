@@ -175,7 +175,7 @@ describe('Registration', function() {
       req.end(payload);
     });
 
-    it('should fail with a 4.00 Bad Request when user rejects endpoint', function(done) {
+    it('should fail with a 4.03 Forbidden when user rejects endpoint', function(done) {
       var req = coap.request({
         host: 'localhost',
         port: port,
@@ -189,7 +189,7 @@ describe('Registration', function() {
       });
 
       req.on('response', function(res) {
-        res.code.should.equal('4.00');
+        res.code.should.equal('4.03');
         done();
       });
 
