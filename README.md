@@ -1,20 +1,15 @@
 # node-lwm2m
 
-[![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![build status][appveyor-image]][appveyor-url]
 [![codecov][codecov-image]][codecov-url]
 
-[npm-image]: https://img.shields.io/npm/v/lwm2m.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/lwm2m
-[travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg
 [travis-url]: https://travis-ci.org/moleike/node-lwm2m
-[appveyor-image]: https://img.shields.io/appveyor/ci/moleike/node-lwm2m/develop.svg?style=flat-square
+[appveyor-image]: https://img.shields.io/appveyor/ci/moleike/node-lwm2m/develop.svg
 [appveyor-url]: https://ci.appveyor.com/project/moleike/node-lwm2m
-[codecov-image]: https://img.shields.io/codecov/c/github/moleike/node-lwm2m.svg?style=flat-square
+[codecov-image]: https://img.shields.io/codecov/c/github/moleike/node-lwm2m.svg
 [codecov-url]: https://codecov.io/gh/moleike/node-lwm2m
-
-WIP
 
 [node-lwm2m][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).
 
@@ -29,9 +24,9 @@ LWM2M is a profile for device services based on CoAP. LWM2M defines a simple obj
 ## Install
 
     npm install --save lwm2m
-    
+
 ## Synopsis
-  
+
 ```js
 var server = require('lwm2m').createServer();
 
@@ -48,194 +43,71 @@ server.on('register', function(params, accept) {
 
 server.listen(5683);
 ```
-    
+
 ## API
 
-## Server
-  - [`createServer()`](#createserveroptionsobject)
-  - [`listen()`](#listenportnumber)
-  - [`read()`](#readepstring-pathstring-optionsobject-callbackfunction)
-  - [`write()`](#writeepstring-pathstring-valueobjectstringnumberbuffer-optionsobject-callbackfunction)
-  - [`execute()`](#executeepstring-pathstring-valuestring-callbackfunction)
-  - [`writeAttributes()`](#writeattributesepstring-pathstring-attributesobject-callbackfunction)
-  - [`discover()`](#discoverepstring-pathstring-callbackfunction)
-  - [`create()`](#createepstring-pathstring-valueobjectstringnumberbuffer-optionsobject-callbackfunction)
-  - [`remove()`](#removeepstring-pathstring-callbackfunction)
-  - [`observe()`](#observeepstring-pathstring-callbackfunction)
-  - [`cancel()`](#cancelepstring-pathstring-callbackfunction)
+-   [schemas](#schemas)
+-   [createServer](#createserver)
+-   [bootstrap#createServer](#bootstrapcreateserver)
+-   [Schema](#schema)
+    -   [validate](#validate)
+-   [Server](#server)
+    -   [read](#read)
+    -   [write](#write)
+    -   [execute](#execute)
+    -   [discover](#discover)
+    -   [writeAttributes](#writeattributes)
+    -   [create](#create)
+    -   [delete](#delete)
+    -   [observe](#observe)
+    -   [cancel](#cancel)
+-   [bootstrap#Server](#bootstrapserver)
+    -   [write](#write-1)
+    -   [delete](#delete-1)
+    -   [finish](#finish)
+-   [Registry](#registry)
+    -   [\_find](#_find)
+    -   [\_get](#_get)
+    -   [\_save](#_save)
+    -   [\_update](#_update)
+    -   [\_delete](#_delete)
 
-## Schemas
+## schemas
 
-  - [`Schema()`](#schemadefinitionsobject)
-  - [`Schema.validate()`](#schemavalidateobjobject)
-  
-## createServer(options:Object)
+Schemas for OMA-defined objects.
+See [oma](lib/oma).
 
-  Server constructor.
+## createServer
 
-  Options:
-  
+Returns **[Server](#server)** object
 
-  - `type`: indicates if the server should create IPv4 connections (udp4) or IPv6 connections (udp6). Defaults to udp6.
-  - `deviceRegistry`: defaults to an in-memory registry.
-  - `piggybackReplyMs`: set the number of milliseconds to wait for a piggyback response. Default 50.
-  
-  Events:
-  
-  - `register`: device registration request.
-  - `update`: device registration update.
-  - `unregister`: device unregistration.
-  
+## bootstrap#createServer
 
-  
-## listen(port:Number)
+Returns **[bootstrap#Server](#bootstrapserver)** object
 
-  Start listening for connections, default port is 5683. This function
-  is inherited from [node-coap](https://github.com/mcollina/node-coap).
+## Schema
 
+Schema constructor.
 
-## read(ep:String, path:String, [options]:Object, callback:Function)
+An `Schema` describes the shape of an [`IPSO object`](https://www.ipso-alliance.org/). 
+An Object is a collection of resources with the following properties:
 
-  Read `path` on device with endpoint name `ep`. The callback is given
-  the two arguments `(err, res)`, where `res` is parsed using `schema`.
-  A path represents either an LWM2M Object instance or resource.
-  
-  Options:
-  
-  - `schema` defining resources.
-  
-  Example:
-  
-```js
-var schema = Schema({
-  test: { id: 1, type: Number }
-});
-```
+-   `id`: the Resource ID
+-   `type`: String | Number | Boolean | Buffer; [type] for multiple instances
+-   `enum`: values are enumerated (Optional)
+-   `range`: values are within a range (Optional)
+-   `required`: the resource is mandatory. Defaults to `false`
 
-  
-```js
-server.read('dev0', '/1024/11', { schema }, function(err, res) {
-  assert(res.hasOwnProperty('test'));
-  assert(typeof res.test == 'number');
-});
-```
+See [oma](lib/oma) directory for default definitions.
 
-  
-  Schemas can be preloaded on the constructor e.g.
-  
-```js
-var server = lwm2m.createServer({ schemas: {
-  '/3': Schema(require('lwm2m/oma/device.json'))
-}});
-```
+**Parameters**
 
-  
-```js
-server.read('dev0', '/3/0', function(err, device) {
-  assert(device.hasOwnProperty('manufacturer'));
-});
-```
+-   `resources` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
 
-  
-```js
-server.read('dev0', '/3/0/5', function(err, pwrSrcs) {
-  assert(Array.isArray(pwrSrcs));
-});
-```
+**Examples**
 
-  
-  Note:
-  
-  _If no schema is provided will return a `Buffer` if the payload is `TLV`-encoded
-  or opaque, or an `String` otherwise._
-
-## write(ep:String, path:String, value:Object|String|Number|Buffer, [options]:Object, callback:Function)
-
-  Makes a Write operation over the designed resource ID of the selected device.
-
-## execute(ep:String, path:String, value:String, callback:Function)
-
-  Makes an Execute operation over the designed resource ID of the selected device.
-
-## writeAttributes(ep:String, path:String, attributes:Object, callback:Function)
-
-  Write `attributes` into `path` of endpoint `ep`.
-  
-  Example:
-  
-```js
-var attr = {
-  "pmin": 5,
-  "pmax": 10
-};
-```
-
-  
-```js
-server.writeAttributes('dev0', '3303/0/5700', attr, function(err, res) {
-   assert.ifError(err);
-});
-```
-
-## discover(ep:String, path:String, callback:Function)
-
-  Execute a discover operation for the selected resource.
-
-## create(ep:String, path:String, value:Object|String|Number|Buffer, [options]:Object, callback:Function)
-
-  Create a new LWM2M Object for `path`, where path is an Object ID.
-
-## remove(ep:String, path:String, callback:Function)
-
-  Deletes the LWM2M Object instance in `path` of endpoint `ep`
-
-## observe(ep:String, path:String, callback:Function)
-
- Observe changes in `path` of device with endpoint name `ep`. 
- The notification behaviour, e.g. periodic or event-triggered reporting, is configured with the 
- `writeAttributes` method. The callback is given the two arguments `(err, stream)`, 
- where `stream` is a `Readable Stream`. To stop receiving notifications `close()` the stream
- and (optionally) call `cancel()` on the same `ep` and `path` and .
-  
-  Example:
-    
-```js
-server.observe('dev0', '/1024/10/1', function(err, stream) {
-  stream.on('data', function(value) {
-    console.log('new value %s', value);
-  });
-  
-  stream.on('end', function() {
-    console.log('stopped observing');
-  });
-});
-```
-
-## cancel(ep:String, path:String, callback:Function)
-
-  Cancel an observation for `path` of device `ep`.
-  
-  
----
-
-## Schema(definitions:Object)
-
-  Schema constructor.
-  
-  An `Schema` describes the shape of an [`Smart Object`](https://www.ipso-alliance.org/). 
-  An Object is a collection of resources with the following properties:
-  
-  - `id`: the Resource ID
-  - `type`: String | Number | Boolean | Buffer; [type] for multiple instances
-  - `enum`: values are enumerated (Optional)
-  - `range`: values are within a range (Optional)
-  - `required`: the resource is mandatory. Defaults to `false`
-  
-  **Examples**
-  
-  A temperature sensor:
-  
-```js
+```javascript
+// IPSO temperature sensor
 var temperature = new Schema({
   sensorValue: {
     id: 5700,
@@ -247,12 +119,8 @@ var temperature = new Schema({
     type: String
   }
 });
-```
 
-  
-  A light controller:
-  
-```js
+// IPSO light controller
 var lightControl = new Schema({
   onOff: {
    id : 5850,
@@ -269,37 +137,435 @@ var lightControl = new Schema({
     type: String
   }
 });
+
+// Bad schema
+var schema = new Schema({
+  a: { type: String, id: 0 },
+  b: { type: Error, id: 1 },
+}); // throws TypeError
 ```
 
-  
-  LWM2M Server Object:
-  
-```js
+-   Throws **any** Will throw an error if fails to validate
+
+### validate
+
+validates `obj` with `schema`.
+
+**Parameters**
+
+-   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+
+**Examples**
+
+```javascript
 var schema = new Schema({
-  serverId: {
-    id: 0,
-    type: Number,
-    range: { min: 1, max: 65535 }
-  },
-  lifetime: {
-    id: 1,
-    type: Number
-  },
-  notifyStoring: {
-    id: 6,
-    type: Boolean
-  },
-  binding: {
-    id: 7,
-    type: String,
-    enum: ['U','UQ','S','SQ','US','UQS']
-  }
+  a: { type: String, id: 0 },
+  b: { type: Buffer, id: 1 },
+});
+
+schema.validate({ 
+  a: 'foo', 
+  b: Buffer.from('bar'),
+}); // OK
+
+schema.validate({ 
+  a: 'foo', 
+  b: 'bar', 
+}); // Throws error
+```
+
+-   Throws **any** Will throw an error if fails to validate
+
+## Server
+
+**Extends EventEmitter**
+
+Server constructor.
+
+Events:
+
+-   `register`: device registration request.
+-   `update`: device registration update.
+-   `unregister`: device unregistration.
+
+**Parameters**
+
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `options.type` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** IPv4 (udp4) or IPv6 (udp6) connections (optional, default `'upd6'`)
+    -   `options.piggybackReplyMs` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** milliseconds to wait for a piggyback response (optional, default `50`)
+    -   `options.registry` **[Registry](#registry)** impl. of CoRE Resource Directory (optional, default `Registry`)
+
+### read
+
+Read `path` on device with endpoint name `endpoint`. The optional callback is given
+the two arguments `(err, res)`, where `res` is parsed using `schema`.
+
+Note:
+
+_If no schema is provided will return a `Buffer` if the payload is `TLV`-encoded
+or opaque, or an `String` otherwise._
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** either an LWM2M Object instance or resource
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `options.schema` **[Schema](#schema)** defining resources.
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+**Examples**
+
+```javascript
+var schema = Schema({
+  test: { id: 1, type: Number }
+});
+
+server.read('test', '/1024/11', { schema }, function(err, res) {
+  assert(res.hasOwnProperty('test'));
+  assert(typeof res.test == 'number');
 });
 ```
 
-  
-  See [oma](oma) directory for examples of definitions.
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Buffer](https://nodejs.org/api/buffer.html) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number))>** a promise of the eventual value
 
-## Schema.validate(obj:Object)
+### write
 
-  validates `obj` with `schema`.
+Write `value` into `path` of device with endpoint name `endpoint`.
+For writing Object Instances, an schema is required.
+
+Note:
+
+_schemas can be globally added to `lwm2m.schemas`._
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `value` **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [Buffer](https://nodejs.org/api/buffer.html))** 
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `options.format` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** media type. (optional, default `'tlv'`)
+    -   `options.schema` **[Schema](#schema)?** schema to serialize value.
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+**Examples**
+
+```javascript
+var schema = Schema({
+  foo : { 
+    id: 5, 
+    type: 'String' 
+  },
+  bar : { 
+    id: 6, 
+    type: 'Number' 
+  },
+});
+
+var options = { 
+  schema: schema, 
+  format: 'json',
+};
+
+var value = {
+  foo: 'test',
+  bar: 42,
+};
+
+var promise = server.write('test', '/42/0', value, options)
+var promise = server.write('test', '/42/0/5', 'test')
+var promise = server.write('test', '/42/0/6', 42)
+
+// add schema for Object ID 42 globally.
+lwm2m.schemas[42] = schema;
+
+var promise = server.write('test', '/42/0', value)
+```
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### execute
+
+Makes an Execute operation over the designed resource ID of the selected device.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `value` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### discover
+
+Execute a discover operation for the selected resource.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>** a promise with an strng in link-format
+
+### writeAttributes
+
+Write `attributes` into `path` of endpoint `endpoint`.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `attributes` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+**Examples**
+
+```javascript
+var attr = {
+  "pmin": 5,
+  "pmax": 10
+};
+
+server.writeAttributes('dev0', '3303/0/5700', attr, function(err, res) {
+   assert.ifError(err);
+});
+```
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### create
+
+Create a new LWM2M Object for `path`, where path is an Object ID.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `value` **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [Buffer](https://nodejs.org/api/buffer.html))** 
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### delete
+
+Deletes the LWM2M Object instance in `path` of endpoint `endpoint`
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### observe
+
+Observe changes in `path` of device with endpoint name `endpoint`. 
+The notification behaviour, e.g. periodic or event-triggered reporting, is configured with the 
+`writeAttributes` method. The callback is given the two arguments `(err, stream)`, 
+where `stream` is a `Readable Stream`. To stop receiving notifications `close()` the stream
+and (optionally) call `cancel()` on the same `endpoint` and `path` and .
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `options`  
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+**Examples**
+
+```javascript
+server.observe('dev0', '/1024/10/1', function(err, stream) {
+  stream.on('data', function(value) {
+    console.log('new value %s', value);
+  });
+
+  stream.on('end', function() {
+    console.log('stopped observing');
+  });
+});
+```
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### cancel
+
+Cancel an observation for `path` of device `endpoint`.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+## bootstrap#Server
+
+**Extends EventEmitter**
+
+Server constructor.
+
+Events
+
+-   `bootstrapRequest`: device bootstrap request.
+
+**Parameters**
+
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `options.type` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** IPv4 (udp4) or IPv6 (udp6) connections (optional, default `'upd6'`)
+    -   `options.piggybackReplyMs` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** milliseconds to wait for a piggyback response (optional, default `50`)
+
+**Examples**
+
+```javascript
+var bootstrap = require('lwm2m').bootstrap;
+var server = bootstrap.createServer();
+
+server.on('error', function(err) {
+  throw err;
+});
+
+server.on('close', function() {
+  console.log('server is done');
+});
+
+server.on('bootstrapRequest', function(params, accept) {
+  console.log('endpoint %s contains %s', params.ep, params.payload);
+  accept();
+});
+
+// the default CoAP port is 5683
+server.listen();
+```
+
+### write
+
+Makes a Write operation over the designed resource ID of the selected device.
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `value` **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [Buffer](https://nodejs.org/api/buffer.html))** 
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `options.format` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** media type.
+    -   `options.schema` **[Schema](#schema)** schema to serialize value when an object.
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+**Examples**
+
+```javascript
+var schema = Schema({
+  foo : { 
+    id: 5, 
+    type: 'String' 
+  },
+  bar : { 
+    id: 6, 
+    type: 'Number' 
+  },
+});
+
+var options = { 
+  schema: schema, 
+  format: 'json',
+};
+
+var value = {
+  foo: 'test',
+  bar: 42,
+};
+
+var promise = server.write('test', '/42/3', value, options)
+```
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### delete
+
+Deletes the LWM2M Object instance in `path` of endpoint `endpoint`
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### finish
+
+Terminate the Bootstrap Sequence previously initiated
+
+**Parameters**
+
+-   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+## Registry
+
+**Extends EventEmitter**
+
+Registry for clients. 
+Default implementation is in-memory.
+
+For production use, extend `Registry` class and 
+give new implementations to
+\_get, \_find, \_save, \_update and \_delete.
+
+### \_find
+
+get client by endpoint name
+
+**Parameters**
+
+-   `endpoint` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** callback is given
+    the two arguments `(err, client)`
+
+### \_get
+
+get client by location in the registry
+
+**Parameters**
+
+-   `location` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** callback is given
+    the two arguments `(err, client)`
+
+### \_save
+
+store a new client in the registry
+
+**Parameters**
+
+-   `client` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** callback is given
+    the two arguments `(err, location)`
+
+### \_update
+
+update a client in the registry
+
+**Parameters**
+
+-   `location` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `params` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** callback is given
+    the two arguments `(err, location)`
+
+### \_delete
+
+delete client from the registry
+
+**Parameters**
+
+-   `location` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** callback is given
+    the two arguments `(err, client)`
