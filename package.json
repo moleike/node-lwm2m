@@ -18,8 +18,9 @@
     "node": ">=4"
   },
   "scripts": {
-    "test": "istanbul cover _mocha -- --recursive && codecov",
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
+    "test": "nyc --reporter=text node_modules/mocha/bin/mocha --recursive",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "pretest": "npm run lint",
     "prepublish": "npm run test",
     "preversion": "npm run test",
@@ -32,10 +33,10 @@
     "readable-stream": "^2.2.11"
   },
   "devDependencies": {
-    "codecov": "^2.2.0",
+    "coveralls": "^2.13.1",
     "eslint": "^4.3.0",
-    "istanbul": "^0.4.5",
     "mocha": "^3.4.2",
+    "nyc": "^11.1.0",
     "should": "^8.4.0"
   },
   "keywords": []

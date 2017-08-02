@@ -2,14 +2,14 @@
 
 [![build status][travis-image]][travis-url]
 [![build status][appveyor-image]][appveyor-url]
-[![codecov][codecov-image]][codecov-url]
+[![coverage status][coveralls-image]][coveralls-url]
 
 [travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg
 [travis-url]: https://travis-ci.org/moleike/node-lwm2m
 [appveyor-image]: https://img.shields.io/appveyor/ci/moleike/node-lwm2m/develop.svg
 [appveyor-url]: https://ci.appveyor.com/project/moleike/node-lwm2m
-[codecov-image]: https://img.shields.io/codecov/c/github/moleike/node-lwm2m.svg
-[codecov-url]: https://codecov.io/gh/moleike/node-lwm2m
+[coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
+[coveralls-image]: https://coveralls.io/repos/github/moleike/node-lwm2m/badge.svg?branch=develop
 
 [node-lwm2m][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).
 
