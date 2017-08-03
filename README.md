@@ -1,5 +1,7 @@
 # node-lwm2m
 
+> an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).
+
 [![build status][travis-image]][travis-url]
 [![build status][appveyor-image]][appveyor-url]
 [![coverage status][coveralls-image]][coveralls-url]
@@ -11,9 +13,7 @@
 [coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
 [coveralls-image]: https://coveralls.io/repos/github/moleike/node-lwm2m/badge.svg?branch=develop
 
-[node-lwm2m][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).
-
-This is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation. Considerable work has been done so that it is now a distinct project.
+[node-lwm2m][self] is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation. Considerable work has been done so that it is now a distinct project.
 
 [self]: https://github.com/moleike/node-lwm2m.git
 
