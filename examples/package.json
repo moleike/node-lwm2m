@@ -1,0 +1,7 @@
+{
+  "name": "examples",
+  "scripts": {},
+  "devDependencies": {
+    "mongodb": "^2.2.30"
+  }
+}
