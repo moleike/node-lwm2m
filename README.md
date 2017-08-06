@@ -11,7 +11,7 @@
 [appveyor-image]: https://img.shields.io/appveyor/ci/moleike/node-lwm2m/develop.svg
 [appveyor-url]: https://ci.appveyor.com/project/moleike/node-lwm2m
 [coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
-[coveralls-image]: https://coveralls.io/repos/github/moleike/node-lwm2m/badge.svg?branch=develop
+[coveralls-image]: https://img.shields.io/coveralls/moleike/node-lwm2m/develop.svg
 
 [node-lwm2m][self] is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation. Considerable work has been done so that it is now a distinct project.
 
