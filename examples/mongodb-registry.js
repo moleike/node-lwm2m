@@ -1,5 +1,6 @@
-var lwm2m = require('..')
-  , Registry = lwm2m.Registry
+'use strict';
+
+var Registry = require('..').Registry
   , MongoClient = require('mongodb').MongoClient;
 
 function MongoRegistry(url) {
@@ -15,43 +16,25 @@ function MongoRegistry(url) {
     }
   });
 }
+
+module.exports = MongoRegistry;
   
 
-MongoRegistry.prototype = Object.create(Registry.prototype, {
-  _save : {
-    value: function(client, callback) {
-      this.clients.insertOne(client, function(err, result) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, result._id);
-        }
-      });
-    },
-  },
-  _find : {
-    value: function(endpoint, callback) {
-      this.clients.findOne({ ep: endpoint }, callback);
-    },
-  },
-});
-
+MongoRegistry.prototype = Object.create(Registry.prototype);
 MongoRegistry.prototype.constructor = MongoRegistry;
 
-// Connection URL
-var url = 'mongodb://localhost:27017/lwm2m';
+MongoRegistry.prototype._save = function(client, callback) {
+  this.clients.insertOne(client, function(err, result) {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, result.insertedId);
+    }
+  });
+};
 
-var server = lwm2m.createServer({
-  registry: new MongoRegistry(url),
-});
-
-server.on('register', function(params, accept) {
-  // TODO
-  accept();
-});
+MongoRegistry.prototype._find = function(endpoint, callback) {
+  this.clients.findOne({ ep: endpoint }, callback);
+};
 
 
-
-        
-
-      
