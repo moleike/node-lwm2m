@@ -21,6 +21,16 @@
 
 LWM2M is a profile for device services based on CoAP. LWM2M defines a simple object model and a number of interfaces and operations for device management.
 
+### Object Model
+
+The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources.
+
+An LWM2M Resource is a REST endpoint, allowed to be a single value or an array of values of the same data type.
+
+An LWM2M Object is a resource template and container type that encapsulates a set of related resources.  An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
+
+Source: https://tools.ietf.org/html/draft-ietf-core-resource-directory
+
 ## Install
 
     npm install --save lwm2m
