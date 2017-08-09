@@ -29,7 +29,6 @@
   "dependencies": {
     "coap": "^0.21.0",
     "debug": "^2.6.6",
-    "node-promisify": "^1.2.0",
     "readable-stream": "^2.2.11"
   },
   "devDependencies": {
