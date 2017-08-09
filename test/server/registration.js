@@ -245,8 +245,8 @@ describe('Registration', function() {
         pathname: location,
       });
 
-      server.on('deregister', function(loc) {
-        location.should.endWith(loc);
+      server.on('deregister', function(result) {
+        location.should.endWith(result.location);
         done();
       });
 
