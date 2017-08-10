@@ -15,6 +15,7 @@ function MongoRegistry(url) {
       db.close();
     } else {
       _this.clients = db.collection('clients');
+      _this.clients.createIndex({ expires: 1 }, { expireAfterSeconds: 30 });
     }
   });
 }
@@ -48,7 +49,11 @@ MongoRegistry.prototype._get = function(location, callback) {
     });
 };
 
-MongoRegistry.prototype._save = function(client, callback) {
+MongoRegistry.prototype._save = function(params, callback) {
+  var client = Object.assign({
+    expires: new Date(Date.now() + (params.lt || 86400) * 1e3),
+  }, params);
+
   this.clients.insertOne(client, function(err, result) {
     if (err) {
       callback(err);
@@ -59,19 +64,24 @@ MongoRegistry.prototype._save = function(client, callback) {
 };
 
 MongoRegistry.prototype._update = function(location, params, callback) {
-  this.clients.findOneAndUpdate({ 
-    _id: ObjectId(location), 
-  }, { 
-    $set: params, 
-  }, function(err, result) {
-    if (err) {
-      callback(err);
-    } else if (result.value === null) {
-      callback(new errors.DeviceNotFound());
-    } else {
-      callback(null, result.value._id);
-    }
-  });
+  var _this = this;
+
+  this.get(location)
+    .then(function(result) {
+      var client = Object.assign(result, params, {
+        expires: new Date(Date.now() + (params.lt || result.lt) * 1e3),
+      });
+
+      return _this.clients.updateOne({ 
+        _id: ObjectId(location), 
+      }, { 
+        $set: client,
+      });
+    })
+    .then(function() {
+      callback(null, location);
+    })
+    .catch(callback);
 };
 
 MongoRegistry.prototype._delete = function(location, callback) {
