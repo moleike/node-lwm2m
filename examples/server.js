@@ -9,7 +9,15 @@ var server = require('..').createServer({
   registry: new MongoRegistry(url),
 });
 
+server.on('error', function(err) {
+  console.log(err.message);
+
+  process.exit(1);
+});
+
 server.on('register', function(params, accept) {
+  console.log('client registration');
+
   accept();
 });
 

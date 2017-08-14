@@ -11,11 +11,11 @@ function MongoRegistry(url) {
   var _this = this;
   MongoClient.connect(url, function(err, db) {
     if (err) {
-      _this.emit('error', err); // FIXME server should check this
+      _this.emit('error', err);
       db.close();
     } else {
       _this.clients = db.collection('clients');
-      _this.clients.createIndex({ expires: 1 }, { expireAfterSeconds: 30 });
+      _this.clients.createIndex({ expires: 1 }, { expireAfterSeconds: 0 });
     }
   });
 }
