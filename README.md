@@ -13,13 +13,17 @@
 [coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
 [coveralls-image]: https://img.shields.io/coveralls/moleike/node-lwm2m/develop.svg
 
-[node-lwm2m][self] is a fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation. Considerable work has been done so that it is now a distinct project.
+[node-lwm2m][self] is an advanced fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation with less dependencies and a more Node-ish API. Considerable work has been done so that it is now a distinct project.
 
 [self]: https://github.com/moleike/node-lwm2m.git
 
 ## What is LWM2M?
 
-LWM2M is a profile for device services based on CoAP. LWM2M defines a simple object model and a number of interfaces and operations for device management.
+LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M defines a simple object model and a number of interfaces and operations for device management.
+See an overview of the protocol [here][lwm2m].
+
+[coap]: https://tools.ietf.org/html/rfc7252
+[lwm2m]: http://www.openmobilealliance.org/wp/overviews/lightweightm2m_overview.html
 
 ### Object Model
 
@@ -30,6 +34,13 @@ An LWM2M Resource is a REST endpoint, allowed to be a single value or an array o
 An LWM2M Object is a resource template and container type that encapsulates a set of related resources.  An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
 
 Source: https://tools.ietf.org/html/draft-ietf-core-resource-directory
+
+### Object Registry
+
+See [IPSO Registry][ipso] or [OMNA Registry][omna] for Object and Resource definitions.
+
+[ipso]: https://github.com/IPSO-Alliance/pub/tree/master/reg/xml
+[omna]: http://www.openmobilealliance.org/wp/OMNA/LwM2M/LwM2MRegistry.html
 
 ## Install
 
@@ -53,6 +64,11 @@ server.on('register', function(params, accept) {
 
 server.listen(5683);
 ```
+
+## Contribute
+
+Please report bugs via the
+[github issue tracker](https://github.com/moleike/node-lwm2m/issues).
 
 ## API
 
@@ -99,7 +115,7 @@ Returns **[bootstrap#Server](#bootstrapserver)** object
 
 Schema constructor.
 
-An `Schema` describes the shape of an [`IPSO object`](https://www.ipso-alliance.org/). 
+An `Schema` describes the shape of an LWM2M Object.
 An Object is a collection of resources with the following properties:
 
 -   `id`: the Resource ID
@@ -528,6 +544,8 @@ Default implementation is in-memory.
 For production use, extend `Registry` class and 
 give new implementations to
 \_get, \_find, \_save, \_update and \_delete.
+
+See [examples](examples) for a MongoDB-backed registry.
 
 ### \_find
 
