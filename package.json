@@ -1,7 +1,7 @@
 {
   "name": "lwm2m",
   "description": "Library for developing servers and client of OMA Lightweight M2M",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "homepage": "https://github.com/moleike/node-lwm2m",
   "author": {
     "name": "Alexandre Moreno",
