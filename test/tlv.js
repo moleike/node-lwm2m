@@ -41,7 +41,7 @@ var object = {
   batteryLevel: 100,
   memoryFree: 15,
   errorCode: [ 0 ],
-  currentTime: 1367491215,
+  currentTime: new Date('2013-05-02T10:40:15.000Z'),
   utcOffset: '+02:00',
   binding: 'U', 
 };
