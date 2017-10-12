@@ -35,8 +35,10 @@ describe('LWM2M Object Schema', function() {
       var def = {
         a: { type: String, id: 0 },
         b: { type: Number, id: 1 },
-        c: { type: [Boolean], id: 2 },
+        c: { type: Boolean, id: 2 },
         d: { type: Buffer, id:3 },
+        e: { type: Date, id:4 },
+        f: { type: [Boolean], id: 5 },
       };
 
       function validate() {
@@ -49,7 +51,7 @@ describe('LWM2M Object Schema', function() {
     it('should throw on invalid types', function() {
       var def = {
         a: { type: String, id: 0 },
-        b: { type: Date, id: 1 },
+        b: { type: Error, id: 1 },
       };
 
       function validate() {

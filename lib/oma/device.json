@@ -52,7 +52,7 @@
         "id": 11
         },
     "currentTime": {
-        "type": "Number",
+        "type": "Date",
         "id": 13
     },
     "utcOffset": {

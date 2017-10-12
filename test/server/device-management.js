@@ -124,7 +124,9 @@ describe('Device management' , function() {
       server.read(ep, '/3/0', function(err, result) {
         should.not.exist(err);
         should.exist(result);
-        result.should.have.properties({ currentTime: 42 });        
+        result.should.have.properties({ 
+          currentTime: new Date(42 * 1e3),
+        });        
         done();
       });
     });
@@ -178,7 +180,7 @@ describe('Device management' , function() {
       });
 
       var value = {
-        currentTime: 42,
+        currentTime: new Date(42 * 1e3),
       };
 
       var options = {
