@@ -27,11 +27,16 @@ var should = require('should');
 var lwm2m = require('../../');
 var coap = require('coap');
 var Writable = require('readable-stream').Writable;
+var Readable = require('readable-stream').Readable;
 var Stream = require('stream');
 var port = 5683;
 var server, client;
 var payload = '</1>,</2>,</3>,</4>,</5>';
 var ep = 'test';
+var schema = lwm2m.Schema({
+  foo : { id: 5, type: 'String' },
+  bar : { id: 6, type: 'Number' },
+});
 
 describe('Information Reporting', function() {
 
@@ -95,11 +100,51 @@ describe('Information Reporting', function() {
 
       });
 
-      server.observe(ep, '/3/4')
+      server.observe(ep, '/3/4/5')
         .then(function(stream) {
           stream.should.be.an.instanceof(Stream);
           stream.on('data', function(chunk) {
             chunk.should.be.equal('test');
+          });
+          stream.on('error', done);
+        })
+        .catch(done);
+    });
+
+    it('should return parsed objects when using a schema', function(done) {
+      client.on('request', function (req, res) {
+        req.method.should.equal('GET');
+        req.headers['Observe'].should.equal(0);
+
+        res.should.be.an.instanceof(Writable);
+
+        res.setOption('Content-Format', 'application/vnd.oma.lwm2m+json');
+        res.code = '2.05';
+
+        setTimeout(function() {
+          var rs = new Readable();
+          rs.push('{"e":[');
+          rs.push('{"n":"5","sv":"test"},');
+          rs.push('{"n":"6","v":42}');
+          rs.push(']}');
+          rs.push(null);
+          rs.pipe(res);
+
+          done();
+        }, 200);
+
+        res.on('finish', function(err) {
+          should.not.exist(err);
+        });
+
+      });
+
+      server.observe(ep, '/3/4', { schema: schema })
+        .then(function(stream) {
+          stream.should.be.an.instanceof(Stream);
+          stream.on('data', function(data) {
+            should.exist(data);
+            data.should.have.properties({ foo: 'test', bar: 42 });
           });
           stream.on('error', done);
         })

@@ -149,8 +149,8 @@ describe('Device management' , function() {
       });
     });
 
-    it('should throw when missing/invalid schema', function() {
-      server.read.bind(server, ep, '42/3/5').should
+    it('should throw when invalid schema', function() {
+      server.read.bind(server, ep, '42/3/5', { schema: 'invalid' }).should
         .throw(TypeError, { message: 'Illegal schema' });
     });
 
