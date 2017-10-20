@@ -89,7 +89,41 @@ describe('application/vnd.oma.lwm2m+json', function() {
         return it.should.be.oneOf(keys);
       });
     });
-  });
 
+    it('should return a composite object when using Object links', function() {
+      var Bar = new Schema({
+        bar: {
+          type: 'String',
+          id: 2,
+        },
+        baz: {
+          type: 'Boolean',
+          id: 3,
+        },
+      });
+
+      var Foo = new Schema({
+        foo: {
+          type: 'Objlnk',
+          id: 1,
+          schema: Bar,
+        },
+      });
+
+      var test = '{"bn":"/","e":[' +
+        '{"n":"65/0/1","ov":"66:0"},' +
+        '{"n":"66/0/2","sv":"test"},' +
+        '{"n":"66/0/3","bv":false}]}';
+
+      var result = senml.parse(test, Foo);
+
+      result.should.have.properties({
+        foo: {
+          bar: 'test',
+          baz: false,
+        },
+      });
+    });
+  });
 });
 
