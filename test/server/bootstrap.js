@@ -226,7 +226,7 @@ describe('Bootstrap', function() {
         res.end();
       });
 
-      server.finish(ep).should.be.fulfilled();
+      return server.finish(ep).should.be.fulfilled();
     });
   });
 });
