@@ -36,7 +36,7 @@ describe('LWM2M Object Schema', function() {
         a: { type: String, id: 0 },
         b: { type: Number, id: 1 },
         c: { type: Boolean, id: 2 },
-        d: { type: Buffer, id:3 },
+        d: { type: 'Opaque', id:3 },
         e: { type: Date, id:4 },
         f: { type: [Boolean], id: 5 },
       };
