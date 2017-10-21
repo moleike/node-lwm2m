@@ -21,7 +21,7 @@
         "required": true
     },
     "clientCert": {
-        "type": "Buffer",
+        "type": "Opaque",
         "id": 3,
         "required": true
     },
@@ -35,12 +35,12 @@
         "required": true
     },
     "serverCert": {
-        "type": "Buffer",
+        "type": "Opaque",
         "id": 4,
         "required": false
     },
     "secretKey": {
-        "type": "Buffer",
+        "type": "Opaque",
         "id": 5,
         "required": true
     }

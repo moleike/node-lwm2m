@@ -18,7 +18,7 @@
         "id": 3
     },
     "velocity": {
-        "type": "Buffer",
+        "type": "Opaque",
         "id": 4
     },
     "timestamp": {
