@@ -135,7 +135,7 @@ An `Schema` describes the shape of an LWM2M Object.
 An Object is a collection of resources with the following properties:
 
 -   `id`: the Resource ID
--   `type`: String | Number | Boolean | Buffer | Date; [type] for multiple instances
+-   `type`: String | Integer | Float | Boolean | Opaque | Time; [type] for multiple instances
 -   `enum`: values are enumerated (Optional)
 -   `range`: values are within a range (Optional)
 -   `required`: the resource is mandatory. Defaults to `false`
@@ -150,41 +150,41 @@ See [oma](lib/oma) directory for default definitions.
 
 ```javascript
 // IPSO temperature sensor
-var temperature = new Schema({
-  sensorValue: {
-    id: 5700,
-    type: Number,
-    required: true
-  },
-  units: {
-    id: 5701,
-    type: String
-  }
+var temperature = Schema({
+  value: { type: 'Float', id: 5700, required: true },
+  units: { type: 'String', id: 5701 }
+});
+                                
+// IPSO actuation
+var actuation = Schema({
+  onOff:  { type: 'Boolean', id : 5850, required: true },
+  dimmer: { type: 'Integer', id: 5851, range: { min: 0, max: 100 } }
 });
 
-// IPSO light controller
-var lightControl = new Schema({
-  onOff: {
-   id : 5850,
-   type: Boolean,
-   required: true
-  },
-  dimmer: {
-    type: Number,
-    id: 5851,
-    range: { min: 0, max: 100 }
-  },
-  units: {
-    id: 5701,
-    type: String
-  }
+// IPSO setpoint
+var setPoint = Schema({
+  value: { type: 'Float', id: 5900, required: true },
+  units: { type: 'String', id: 5701 }
 });
 
-// Bad schema
-var schema = new Schema({
-  a: { type: String, id: 0 },
-  b: { type: Error, id: 1 },
-}); // throws TypeError
+// composite schema
+var thermostat = Schema({
+  setpoint: { 
+    type: 'Objlnk',
+    id: 7101, 
+    schema: setPoint 
+  },
+  input: { 
+    type: 'Objlnk',
+    id: 7100,
+    schema: temperature,
+  },
+  output: {
+    type: 'Objlnk',
+    id: 7102,
+    schema: actuation
+  },
+});
 ```
 
 -   Throws **any** Will throw an error if fails to validate

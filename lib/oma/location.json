@@ -1,20 +1,20 @@
 {
     "latitude": {
-        "type": "Number",
+        "type": "Float",
         "id": 0,
         "required": true
     },
     "longitude": {
-        "type": "Number",
+        "type": "Float",
         "id": 1,
         "required": true
     },
     "altitude": {
-        "type": "Number",
+        "type": "Float",
         "id": 2
     },
     "radius": {
-        "type": "Number",
+        "type": "Float",
         "id": 3
     },
     "velocity": {
@@ -22,12 +22,12 @@
         "id": 4
     },
     "timestamp": {
-        "type": "Number",
+        "type": "Time",
         "id": 5,
         "required": true
     },
     "speed": {
-        "type": "Number",
+        "type": "Float",
         "id": 6
     }
 }

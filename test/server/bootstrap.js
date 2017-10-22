@@ -33,7 +33,7 @@ var ep = 'test';
 
 var schema = lwm2m.Schema({
   foo : { id: 5, type: 'String' },
-  bar : { id: 6, type: 'Number' },
+  bar : { id: 6, type: 'Integer' },
 });
 
 describe('Bootstrap', function() {
