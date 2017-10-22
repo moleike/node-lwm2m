@@ -1,6 +1,6 @@
 {
     "objectId": {
-        "type": "Number",
+        "type": "Integer",
         "id": 0,
         "range": {
             "min": 1,
@@ -9,7 +9,7 @@
         "required": true
     },
     "instanceId": {
-        "type": "Number",
+        "type": "Integer",
         "id": 1,
         "range": {
             "min": 0,
@@ -18,11 +18,11 @@
         "required": true
     },
     "acl": {
-        "type": ["Number"],
+        "type": ["Integer"],
         "id": 2
     },
     "owner": {
-        "type": "Number",
+        "type": "Integer",
         "id": 3,
         "range": {
             "min": 0,

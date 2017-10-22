@@ -1,6 +1,6 @@
 {
     "serverId": {
-        "type": "Number",
+        "type": "Integer",
         "id": 0,
         "range": {
             "min": 1,
@@ -9,7 +9,7 @@
         "required": true
     },
     "lifetime": {
-        "type": "Number",
+        "type": "Integer",
         "id": 1,
         "required": true
     },

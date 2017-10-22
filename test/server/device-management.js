@@ -34,7 +34,7 @@ var payload = '</1>,</2>,</3>,</4>,</5>';
 var ep = 'test';
 var schema = lwm2m.Schema({
   foo : { id: 5, type: 'String' },
-  bar : { id: 6, type: 'Number' },
+  bar : { id: 6, type: 'Integer' },
 });
 
 describe('Device management' , function() {
@@ -103,7 +103,7 @@ describe('Device management' , function() {
         res.end('test');
       });
 
-      server.read(ep, '42/3/5', { schema: schema })
+      return server.read(ep, '42/3/5', { schema: schema })
         .should.eventually.be.equal('test');
     });
 
@@ -187,7 +187,8 @@ describe('Device management' , function() {
         format: 'json',
       };
 
-      server.write(ep, '/3/0', value, options);
+      server.write(ep, '/3/0', value, options)
+        .catch(done);
     });
 
     it('should send an encoded payload', function(done) {

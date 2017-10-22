@@ -28,31 +28,31 @@
         "id": 19
     },
     "powerSrcs": {
-        "type": ["Number"],
+        "type": ["Integer"],
         "id": 6
     },
     "srcVoltage": {
-        "type": ["Number"],
+        "type": ["Integer"],
         "id": 7
         },
     "srcCurrent": {
-        "type": ["Number"],
+        "type": ["Integer"],
         "id": 8
     },
     "batteryLevel": {
-        "type": "Number",
+        "type": "Integer",
         "id": 9
     },
     "memoryFree": {
-        "type": "Number",
+        "type": "Integer",
         "id": 10
     },
     "errorCode": {
-        "type": ["Number"],
+        "type": ["Integer"],
         "id": 11
         },
     "currentTime": {
-        "type": "Date",
+        "type": "Time",
         "id": 13
     },
     "utcOffset": {

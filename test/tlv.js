@@ -80,6 +80,19 @@ describe('application/vnd.oma.lwm2m+tlv', function() {
       dev.should.be.eql(object);
     });
   });
+
+  describe('marshalling/unmarshalling', function() {
+    it('should return original float', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Float' },
+      });
+
+      var value = { foo: 42.42 };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+  });
+
 });
 
 

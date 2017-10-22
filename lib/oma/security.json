@@ -10,7 +10,7 @@
         "required": true
     },
     "mode": {
-        "type": "Number",
+        "type": "Integer",
         "id": 2,
         "enum": [
             0,
@@ -26,7 +26,7 @@
         "required": true
     },
     "serverId": {
-        "type": "Number",
+        "type": "Integer",
         "id": 10,
         "range": {
             "min": 1,

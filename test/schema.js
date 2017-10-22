@@ -33,12 +33,12 @@ describe('LWM2M Object Schema', function() {
 
     it('should not throw on a valid schema', function() {
       var def = {
-        a: { type: String, id: 0 },
-        b: { type: Number, id: 1 },
-        c: { type: Boolean, id: 2 },
+        a: { type: 'String', id: 0 },
+        b: { type: 'Integer', id: 1 },
+        c: { type: 'Boolean', id: 2 },
         d: { type: 'Opaque', id:3 },
-        e: { type: Date, id:4 },
-        f: { type: [Boolean], id: 5 },
+        e: { type: 'Time', id:4 },
+        f: { type: ['Float'], id: 5 },
       };
 
       function validate() {
@@ -79,8 +79,8 @@ describe('LWM2M Object Schema', function() {
 
     it('should be ok when an object matches an schema', function() {
       var schema = new Schema({
-        a: { type: String, id: 0 },
-        b: { type: Number, id: 1 },
+        a: { type: 'String', id: 0 },
+        b: { type: 'Integer', id: 1 },
       });
 
       function validate() {
@@ -92,8 +92,8 @@ describe('LWM2M Object Schema', function() {
 
     it('should throw when an object does not match schema', function() {
       var schema = new Schema({
-        a: { type: String, id: 0 },
-        b: { type: Number, id: 1 },
+        a: { type: 'String', id: 0 },
+        b: { type: 'Integer', id: 1 },
       });
 
       function validate() {
@@ -111,9 +111,9 @@ describe('LWM2M Object Schema', function() {
 
     it('should throw when missing a required resource', function() {
       var schema = new Schema({
-        a: { type: String, id: 0 },
-        b: { type: Number, id: 1, required: true },
-        c: { type: Boolean, id: 1 },
+        a: { type: 'String', id: 0 },
+        b: { type: 'Integer', id: 1, required: true },
+        c: { type: 'Boolean', id: 2 },
       });
 
       function validate() {
@@ -125,7 +125,7 @@ describe('LWM2M Object Schema', function() {
 
     it('should throw when a value is not within bounds', function() {
       var def = {
-        b: { type: Number, id: 1 },
+        b: { type: 'Integer', id: 1 },
       };
 
       def.b.range = { 
