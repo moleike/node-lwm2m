@@ -20,7 +20,7 @@
   },
   "scripts": {
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
-    "test": "nyc --reporter=text node_modules/mocha/bin/mocha --recursive",
+    "test": "nyc --reporter=text node_modules/mocha/bin/mocha --recursive --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "pretest": "npm run lint",
     "prepublish": "npm run test",
@@ -35,8 +35,8 @@
   "devDependencies": {
     "coveralls": "^2.13.1",
     "eslint": "^4.3.0",
-    "mocha": "^3.4.2",
-    "nyc": "^11.1.0",
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0",
     "should": "^8.4.0"
   },
   "keywords": []
