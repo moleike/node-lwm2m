@@ -141,6 +141,8 @@ An Object is a collection of resources with the following properties:
 -   `required`: the resource is mandatory. Defaults to `false`
 
 See [oma](lib/oma) directory for default definitions.
+See also [thermostat.js](examples/thermostat.js) for an 
+example of a composite schema.
 
 **Parameters**
 
@@ -149,42 +151,29 @@ See [oma](lib/oma) directory for default definitions.
 **Examples**
 
 ```javascript
-// IPSO temperature sensor
-var temperature = Schema({
-  value: { type: 'Float', id: 5700, required: true },
-  units: { type: 'String', id: 5701 }
-});
-                                
-// IPSO actuation
-var actuation = Schema({
-  onOff:  { type: 'Boolean', id : 5850, required: true },
-  dimmer: { type: 'Integer', id: 5851, range: { min: 0, max: 100 } }
+// IPSO light controller
+var lightControl = new Schema({
+  onOff: {
+    type: 'Boolean',
+    id : 5850,
+    required: true
+  },
+  dimmer: {
+    type: 'Integer',
+    id: 5851,
+    range: { min: 0, max: 100 }
+  },
+  units: {
+    type: 'String',
+    id: 5701,
+  }
 });
 
-// IPSO setpoint
-var setPoint = Schema({
-  value: { type: 'Float', id: 5900, required: true },
-  units: { type: 'String', id: 5701 }
-});
-
-// composite schema
-var thermostat = Schema({
-  setpoint: { 
-    type: 'Objlnk',
-    id: 7101, 
-    schema: setPoint 
-  },
-  input: { 
-    type: 'Objlnk',
-    id: 7100,
-    schema: temperature,
-  },
-  output: {
-    type: 'Objlnk',
-    id: 7102,
-    schema: actuation
-  },
-});
+// Bad schema
+var schema = new Schema({
+  a: { type: 'String', id: 0 },
+  b: { type: 'Error', id: 1 },
+}); // throws TypeError
 ```
 
 -   Throws **any** Will throw an error if fails to validate
