@@ -91,6 +91,7 @@ Please report bugs via the
 -   [schemas](#schemas)
 -   [createServer](#createserver)
 -   [bootstrap#createServer](#bootstrapcreateserver)
+-   [Resource](#resource)
 -   [Schema](#schema)
     -   [validate](#validate)
 -   [Server](#server)
@@ -127,18 +128,27 @@ Returns **[Server](#server)** object
 
 Returns **[bootstrap#Server](#bootstrapserver)** object
 
+### Resource
+
+Schema resource type definition
+
+Type: [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+**Properties**
+
+-   `type` **(`"String"` \| `"Integer"` \| `"Float"` \| `"Boolean"` \| `"Opaque"` \| `"Time"` | \[`"type"`])** 
+-   `id` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Resource ID
+-   `required` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** resource is mandatory. Defaults to `false`
+-   `enum` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)?** 
+-   `range` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `range.min` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+    -   `range.max` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+
 ### Schema
 
 Schema constructor.
 
 An `Schema` describes the shape of an LWM2M Object.
-An Object is a collection of resources with the following properties:
-
--   `id`: the Resource ID
--   `type`: String | Integer | Float | Boolean | Opaque | Time; [type] for multiple instances
--   `enum`: values are enumerated (Optional)
--   `range`: values are within a range (Optional)
--   `required`: the resource is mandatory. Defaults to `false`
 
 See [oma](lib/oma) directory for default definitions.
 See also [thermostat.js](examples/thermostat.js) for an 
@@ -146,7 +156,7 @@ example of a composite schema.
 
 **Parameters**
 
--   `resources` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `resources` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)&lt;[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), [Resource](#resource)>** 
 
 **Examples**
 
