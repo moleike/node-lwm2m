@@ -169,9 +169,9 @@ describe('Device management' , function() {
 
         req.method.should.equal('POST');
 
-        payload.should.startWith('{"e":[');
+        payload.should.match(/"bn":"\/3\/0\/"/);
+        payload.should.match(/"e":\[/);
         payload.should.match(/{"n":"13","v":42}/);
-        payload.should.endWith(']}');
 
         res.code = '2.04';
         res.end();
@@ -197,10 +197,10 @@ describe('Device management' , function() {
 
         req.method.should.equal('POST');
 
-        payload.should.startWith('{"e":[');
+        payload.should.match(/"bn":"\/5\/4\/"/);
+        payload.should.match(/"e":\[/);
         payload.should.match(/{"n":"5","sv":"test"}/);
         payload.should.match(/{"n":"6","v":42}/);
-        payload.should.endWith(']}');
 
         res.code = '2.04';
         res.end();
@@ -216,7 +216,7 @@ describe('Device management' , function() {
         bar: 42,
       };
 
-      server.write(ep, '/3/0', value, options, function(err) {
+      server.write(ep, '/5/4', value, options, function(err) {
         should.not.exist(err);
         done();
       });
@@ -250,10 +250,9 @@ describe('Device management' , function() {
 
         req.method.should.equal('POST');
 
-        payload.should.startWith('{"e":[');
+        payload.should.match(/"e":\[/);
         payload.should.match(/{"n":"5","sv":"test"}/);
         payload.should.match(/{"n":"6","v":42}/);
-        payload.should.endWith(']}');
 
         res.code = '2.01';
         res.end();
