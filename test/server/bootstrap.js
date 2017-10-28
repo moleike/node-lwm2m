@@ -123,10 +123,10 @@ describe('Bootstrap', function() {
 
         req.method.should.equal('POST');
 
-        payload.should.startWith('{"e":[');
+        payload.should.match(/"bn":"\/3\/4\/"/);
+        payload.should.match(/"e":\[/);
         payload.should.match(/{"n":"5","sv":"test"}/);
         payload.should.match(/{"n":"6","v":42}/);
-        payload.should.endWith(']}');
 
         res.code = '2.04';
         res.end();
