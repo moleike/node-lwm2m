@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-var Schema = require('../schema');
-var senml = require('../senml');
+var Schema = require('../lib/schema');
+var senml = require('../lib/senml');
 
 // IPSO temperature sensor (3303)
 var temperature = Schema({
