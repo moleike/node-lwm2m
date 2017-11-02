@@ -92,17 +92,16 @@ describe('application/vnd.oma.lwm2m+tlv', function() {
       tlv.parse(buf, schema).should.be.eql(value);
     });
 
-    it('should return correct value', function() {
+    it('should correctly parse single-precision floats', function() {
       var schema = new Schema({
         foo: { id:1, type:'Float' },
       });
 
-      var value = { foo: 12.345 };
       var payload = Buffer.from('c4014145851f', 'hex');
-
       var result = tlv.parse(payload, schema);
 
-      result.foo.toFixed(3).should.be.eql(value.foo.toFixed(3));
+      result.should.have.property('foo').which.is.a.Number();
+      result.foo.toFixed(3).should.be.eql('12.345');
     });
   });
 
