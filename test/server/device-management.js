@@ -40,8 +40,8 @@ var schema = lwm2m.Schema({
 describe('Device management' , function() {
 
   beforeEach(function (done) {
-    server = lwm2m.createServer();
-    client = coap.createServer();
+    server = lwm2m.createServer({ type: 'udp4' });
+    client = coap.createServer({ type: 'udp4' });
     server.on('error', done);
     server.on('register', function(params, accept) {
       accept();
