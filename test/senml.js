@@ -66,9 +66,69 @@ var payload = '{"e":[' +
 
 describe('application/vnd.oma.lwm2m+json', function() {
 
+  describe('types', function() {
+    it('should return original integer', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Integer' },
+      });
+
+      var value = { foo: -42 };
+      var buf = senml.serialize(value, schema);
+      senml.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original array', function() {
+      var schema = new Schema({
+        foo: { id:3, type:['Integer'] },
+      });
+
+      var value = { foo: [-1, 0, 1] };
+      var buf = senml.serialize(value, schema);
+      senml.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original float', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Float' },
+      });
+
+      var value = { foo: 42.42 };
+      var buf = senml.serialize(value, schema);
+      senml.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original boolean', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Boolean' },
+      });
+
+      var value = { foo: true };
+      var buf = senml.serialize(value, schema);
+      senml.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original buffer', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Opaque' },
+      });
+
+      var value = { foo: Buffer.from('bar') };
+      var buf = senml.serialize(value, schema);
+      senml.parse(buf, schema).should.be.eql(value);
+    });
+  });
+
   describe('#serialize', function() {
     it('should return a valid payload', function() {
       var dev = senml.serialize(object, deviceSchema);
+
+      dev.should.equal(payload);
+    });
+
+    it('should skip user properties', function() {
+
+      var obj = Object.assign({}, object, { foo: 'bar' });
+      var dev = senml.serialize(obj, deviceSchema);
 
       dev.should.equal(payload);
     });

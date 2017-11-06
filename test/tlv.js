@@ -64,9 +64,70 @@ var payload = Buffer.from([
   0x55 ]);
 
 describe('application/vnd.oma.lwm2m+tlv', function() {
+
+  describe('types', function() {
+    it('should return original integer', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Integer' },
+      });
+
+      var value = { foo: -42 };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original array', function() {
+      var schema = new Schema({
+        foo: { id:3, type:['Integer'] },
+      });
+
+      var value = { foo: [-1, 0, 1] };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original float', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Float' },
+      });
+
+      var value = { foo: 42.42 };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original boolean', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Boolean' },
+      });
+
+      var value = { foo: true };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+
+    it('should return original buffer', function() {
+      var schema = new Schema({
+        foo: { id:3, type:'Opaque' },
+      });
+
+      var value = { foo: Buffer.from('bar') };
+      var buf = tlv.serialize(value, schema);
+      tlv.parse(buf, schema).should.be.eql(value);
+    });
+  });
   describe('#serialize', function() {
     it('should return a valid payload', function() {
       var dev = tlv.serialize(object, deviceSchema);
+
+      dev.should.be.an.instanceOf(Buffer);
+      dev.toString('hex').should.equal(payload.toString('hex'));
+    });
+
+    it('should skip user properties', function() {
+
+      var obj = Object.assign({}, object, { foo: 'bar' });
+      var dev = tlv.serialize(obj, deviceSchema);
 
       dev.should.be.an.instanceOf(Buffer);
       dev.toString('hex').should.equal(payload.toString('hex'));
@@ -78,18 +139,6 @@ describe('application/vnd.oma.lwm2m+tlv', function() {
       var dev = tlv.parse(payload, deviceSchema);
 
       dev.should.be.eql(object);
-    });
-  });
-
-  describe('marshalling/unmarshalling', function() {
-    it('should return original float', function() {
-      var schema = new Schema({
-        foo: { id:3, type:'Float' },
-      });
-
-      var value = { foo: 42.42 };
-      var buf = tlv.serialize(value, schema);
-      tlv.parse(buf, schema).should.be.eql(value);
     });
 
     it('should correctly parse single-precision floats', function() {
@@ -104,7 +153,6 @@ describe('application/vnd.oma.lwm2m+tlv', function() {
       result.foo.toFixed(3).should.be.eql('12.345');
     });
   });
-
 });
 
 
