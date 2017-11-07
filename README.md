@@ -151,8 +151,13 @@ Schema constructor.
 An `Schema` describes the shape of an LWM2M Object.
 
 See [oma](lib/oma) directory for default definitions.
-See also [thermostat.js](examples/thermostat.js) for an 
+See also [thermostat.js](examples/thermostat.js) for an
 example of a composite schema.
+
+**Note**
+
+_LwM2M types will be coerced to JavaScript types and viceversa, e.g. `Time` will return a `Date()`,
+`Opaque` a `Buffer()`, and `Integer`/`Float` a number._
 
 **Parameters**
 
@@ -204,14 +209,14 @@ var schema = new Schema({
   b: { type: Buffer, id: 1 },
 });
 
-schema.validate({ 
-  a: 'foo', 
+schema.validate({
+  a: 'foo',
   b: Buffer.from('bar'),
 }); // OK
 
-schema.validate({ 
-  a: 'foo', 
-  b: 'bar', 
+schema.validate({
+  a: 'foo',
+  b: 'bar',
 }); // Throws error
 ```
 
