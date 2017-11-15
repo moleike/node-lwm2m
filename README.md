@@ -1,7 +1,5 @@
 # node-lwm2m
 
-> an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M).
-
 [![build status][travis-image]][travis-url]
 [![coverage status][coveralls-image]][coveralls-url]
 [![code analysis][bithound-image]][bithound-url]
@@ -23,14 +21,13 @@
 
 [bithound-image]: https://www.bithound.io/github/moleike/node-lwm2m/badges/code.svg
 
-[node-lwm2m][self] is an advanced fork of @telefonicaid's [lwm2m-node-lib](https://github.com/telefonicaid/lwm2m-node-lib), but adds missing features in the original project required for a compliant implementation with less dependencies and a more Node-ish API. Considerable work has been done so that it is now a distinct project.
+[**node-lwm2m**][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M). 
+
+### What is LWM2M?
+
+LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M defines a simple object model and a number of interfaces and operations for device management. See an overview of the protocol [here][lwm2m].
 
 [self]: https://github.com/moleike/node-lwm2m.git
-
-## What is LWM2M?
-
-LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M defines a simple object model and a number of interfaces and operations for device management.
-See an overview of the protocol [here][lwm2m].
 
 [coap]: https://tools.ietf.org/html/rfc7252
 
@@ -38,11 +35,11 @@ See an overview of the protocol [here][lwm2m].
 
 ### Object Model
 
-The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources.
+The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of *Objects* and *Resources*:
 
-An LWM2M Resource is a REST endpoint, allowed to be a single value or an array of values of the same data type.
+* A *Resource* is a REST endpoint, allowed to be a single value or an array of values of the same data type.
 
-An LWM2M Object is a resource template and container type that encapsulates a set of related resources.  An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
+* An *Object* is a resource template and container type that encapsulates a set of related resources.  An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
 
 Source: <https://tools.ietf.org/html/draft-ietf-core-resource-directory>
 
@@ -148,7 +145,8 @@ Type: [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 Schema constructor.
 
-An `Schema` describes the shape of an LWM2M Object.
+An `Schema` describes the shape of an LwM2M Object and the type of its resources. 
+Schemas are used throghout the API for generating/parsing payloads from/to JavaScript values.
 
 See [oma](lib/oma) directory for default definitions.
 See also [thermostat.js](examples/thermostat.js) for an
@@ -167,7 +165,7 @@ _LwM2M types will be coerced to JavaScript types and viceversa, e.g. `Time` will
 
 ```javascript
 // IPSO light controller
-var lightControl = new Schema({
+var lightControlSchema = new Schema({
   onOff: {
     type: 'Boolean',
     id : 5850,
@@ -183,6 +181,12 @@ var lightControl = new Schema({
     id: 5701,
   }
 });
+
+// an object literal matching the schema above
+var lightControl = {
+  onOff: true,
+  dimmer: 40,
+}
 
 // Bad schema
 var schema = new Schema({
