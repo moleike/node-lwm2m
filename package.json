@@ -41,5 +41,13 @@
     "nyc": "^11.3.0",
     "should": "^8.4.0"
   },
-  "keywords": []
+  "keywords": [
+    "iot",
+    "lwm2m",
+    "ipso",
+    "coap",
+    "sensor",
+    "sensor streaming",
+    "smart objects"
+  ]
 }
