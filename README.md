@@ -260,6 +260,7 @@ or opaque, or an `String` otherwise._
 -   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
 -   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** either an LWM2M Object instance or resource
 -   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** 
+    -   `options.format` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** media type. (optional, default `'text'`)
     -   `options.schema` **[Schema](#schema)** defining resources.
 -   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
 
@@ -270,7 +271,12 @@ var schema = Schema({
   test: { id: 1, type: Number }
 });
 
-server.read('test', '/1024/11', { schema }, function(err, res) {
+var options = { 
+  schema: schema, 
+  format: 'json',
+};
+
+server.read('test', '/1024/11', options, function(err, res) {
   assert(res.hasOwnProperty('test'));
   assert(typeof res.test == 'number');
 });
