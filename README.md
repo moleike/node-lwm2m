@@ -429,6 +429,8 @@ and (optionally) call `cancel()` on the same `endpoint` and `path` and .
 -   `endpoint` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** client endpoint name
 -   `path` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `options`  
+    -   `options.format` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** media type. (optional, default `'text'`)
+    -   `options.schema` **[Schema](#schema)** defining resources.
 -   `callback` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 
 
 **Examples**
