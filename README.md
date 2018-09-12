@@ -23,8 +23,10 @@
 
 [**node-lwm2m**][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M). 
 
-### What is LWM2M?
+<details>
+<summary><strong>What is LWM2M?</strong></summary>
 
+---    
 LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M defines a simple object model and a number of interfaces and operations for device management. See an overview of the protocol [here][lwm2m].
 
 [self]: https://github.com/moleike/node-lwm2m.git
@@ -33,7 +35,7 @@ LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M d
 
 [lwm2m]: http://www.openmobilealliance.org/wp/overviews/lightweightm2m_overview.html
 
-### Object Model
+#### Object Model
 
 The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of *Objects* and *Resources*:
 
@@ -43,13 +45,15 @@ The OMA LWM2M object model is based on a simple 2 level class hierarchy consisti
 
 Source: <https://tools.ietf.org/html/draft-ietf-core-resource-directory>
 
-### Object Registry
+#### Object Registry
 
 See [IPSO Registry][ipso] or [OMNA Registry][omna] for Object and Resource definitions.
 
 [ipso]: https://github.com/IPSO-Alliance/pub/tree/master/reg/xml
 
 [omna]: http://www.openmobilealliance.org/wp/OMNA/LwM2M/LwM2MRegistry.html
+
+</details>
 
 ## Install
 
