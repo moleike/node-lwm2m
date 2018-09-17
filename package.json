@@ -31,14 +31,14 @@
   "dependencies": {
     "coap": "^0.21.0",
     "debug": "^2.6.6",
-    "readable-stream": "^2.2.11"
+    "readable-stream": "^2.3.6"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",
     "documentation": "5.3.2",
-    "eslint": "^4.3.0",
-    "mocha": "^4.0.1",
-    "nyc": "^11.3.0",
+    "eslint": "^4.19.1",
+    "mocha": "^4.1.0",
+    "nyc": "^11.9.0",
     "should": "^8.4.0"
   },
   "keywords": [
