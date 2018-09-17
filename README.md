@@ -2,7 +2,6 @@
 
 [![build status][travis-image]][travis-url]
 [![coverage status][coveralls-image]][coveralls-url]
-[![code analysis][bithound-image]][bithound-url]
 [![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/node-lwm2m/Lobby)
 
 [travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg
@@ -16,10 +15,6 @@
 [coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
 
 [coveralls-image]: https://img.shields.io/coveralls/moleike/node-lwm2m/develop.svg
-
-[bithound-url]: https://www.bithound.io/github/moleike/node-lwm2m
-
-[bithound-image]: https://www.bithound.io/github/moleike/node-lwm2m/badges/code.svg
 
 [**node-lwm2m**][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M). 
 
