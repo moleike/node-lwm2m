@@ -16,7 +16,7 @@
     "url": "https://github.com/moleike/node-lwm2m/issues"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "scripts": {
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
