@@ -18,59 +18,50 @@
 
 [**node-lwm2m**][self] is an implementation of the Open Mobile Alliance's Lightweight M2M protocol (LWM2M). 
 
-<details>
-<summary><strong>What is LWM2M?</strong></summary>
-
----    
-LWM2M is a profile for device services based on CoAP ([RFC 7252][coap]). LWM2M defines a simple object model and a number of interfaces and operations for device management. See an overview of the protocol [here][lwm2m].
-
 [self]: https://github.com/moleike/node-lwm2m.git
 
-[coap]: https://tools.ietf.org/html/rfc7252
-
 [lwm2m]: http://www.openmobilealliance.org/wp/overviews/lightweightm2m_overview.html
-
-#### Object Model
-
-The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of *Objects* and *Resources*:
-
-* A *Resource* is a REST endpoint, allowed to be a single value or an array of values of the same data type.
-
-* An *Object* is a resource template and container type that encapsulates a set of related resources.  An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
-
-Source: <https://tools.ietf.org/html/draft-ietf-core-resource-directory>
-
-#### Object Registry
-
-See [IPSO Registry][ipso] or [OMNA Registry][omna] for Object and Resource definitions.
-
-[ipso]: https://github.com/IPSO-Alliance/pub/tree/master/reg/xml
-
-[omna]: http://www.openmobilealliance.org/wp/OMNA/LwM2M/LwM2MRegistry.html
-
-</details>
 
 ## Install
 
     npm install --save lwm2m
+    
+## Features
+
+- [x] Resource operations of creation/retrieval/update/deletion/configuration of attribute
+- [x] Resource observation/notification
+- [x] TLV/JSON/Plain Text/Opaque data format support
+- [x] Basic M2M functionalities: LWM2M Server, Access Control, Device, Connectivity, Firmware Update, Location, Connectivity
+Statistics.
+- [x] Provisioning of devices (Bootstrap interface)
+- [ ] DTLS based security
 
 ## Synopsis
 
 ```js
-var server = require('lwm2m').createServer();
+var server = require('lwm2m').createServer()
 
 server.on('register', function(params, accept) {
   setImmediate(function() {
-    server
-    .read(params.ep, '3/0')
-    .then(function(device) {
-      console.log(JSON.stringify(device, null, 4));
-    })
-  });
-  accept();
-});
+    server.read(params.ep, '3/0')
+      .then(function(device) {
+        console.log(JSON.stringify(device, null, 4))
+      })
+    
+    server.writeAttributes(params.ep, '/3/0/9', { pmin: 3, pmax: 5 })
+      .then(function() {
+        return server.observe(ep, '/3/0/9');
+      })
+      .then(function(stream) {
+        stream.on('data', function(value) {
+          console.log('battery level: %d%', value)
+        })
+      })
+  })
+  accept()
+})
 
-server.listen(5683);
+server.listen(5683)
 ```
 
 ## Contribute
