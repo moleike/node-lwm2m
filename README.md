@@ -25,16 +25,6 @@
 ## Install
 
     npm install --save lwm2m
-    
-## Features
-
-- [x] Resource operations of creation/retrieval/update/deletion/configuration of attribute
-- [x] Resource observation/notification
-- [x] TLV/JSON/Plain Text/Opaque data format support
-- [x] Basic M2M functionalities: LWM2M Server, Access Control, Device, Connectivity, Firmware Update, Location, Connectivity
-Statistics.
-- [x] Provisioning of devices (Bootstrap interface)
-- [ ] DTLS based security
 
 ## Synopsis
 
