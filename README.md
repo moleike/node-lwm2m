@@ -33,15 +33,15 @@ var server = require('lwm2m').createServer()
 
 server.on('register', function(params, accept) {
   setImmediate(function() {
+     
+    // read device related information
     server.read(params.ep, '3/0')
       .then(function(device) {
         console.log(JSON.stringify(device, null, 4))
       })
-    
-    server.writeAttributes(params.ep, '/3/0/9', { pmin: 3, pmax: 5 })
-      .then(function() {
-        return server.observe(ep, '/3/0/9');
-      })
+      
+    // monitor device battery level
+    server.observe(params.ep, '/3/0/9')
       .then(function(stream) {
         stream.on('data', function(value) {
           console.log('battery level: %d%', value)
