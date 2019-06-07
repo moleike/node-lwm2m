@@ -29,7 +29,7 @@
     "postversion": "git push origin && git push origin --tags"
   },
   "dependencies": {
-    "coap": "^0.23.1",
+    "coap": "^0.21.0",
     "debug": "^4.1.1",
     "readable-stream": "^3.4.0"
   },
