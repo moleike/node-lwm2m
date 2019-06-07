@@ -2,7 +2,7 @@
 
 [![build status][travis-image]][travis-url]
 [![coverage status][coveralls-image]][coveralls-url]
-[![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/node-lwm2m/Lobby)
+[![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/node-lwm2m/Lobby) [![Greenkeeper badge](https://badges.greenkeeper.io/moleike/node-lwm2m.svg)](https://greenkeeper.io/)
 
 [travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg
 
