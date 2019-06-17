@@ -2,6 +2,6 @@
   "name": "examples",
   "scripts": {},
   "devDependencies": {
-    "mongodb": "^2.2.30"
+    "mongodb": "^3.2.7"
   }
 }
