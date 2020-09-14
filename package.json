@@ -31,7 +31,7 @@
   "dependencies": {
     "coap": "^0.21.0",
     "debug": "^2.6.6",
-    "readable-stream": "^2.3.6"
+    "readable-stream": "^2.3.7"
   },
   "devDependencies": {
     "coveralls": "^3.0.2",
