@@ -90,7 +90,6 @@ describe('Information Reporting', function() {
 
         setTimeout(function() {
           res.end();
-          done();
         }, 200);
 
         res.on('finish', function(err) {
@@ -108,7 +107,7 @@ describe('Information Reporting', function() {
           });
           stream.on('error', done);
         })
-        .catch(done);
+        .then(done, done);
     });
 
     it('should return parsed objects when using a schema', function(done) {
@@ -130,7 +129,6 @@ describe('Information Reporting', function() {
           rs.push(null);
           rs.pipe(res);
 
-          done();
         }, 200);
 
         res.on('finish', function(err) {
@@ -148,7 +146,7 @@ describe('Information Reporting', function() {
           });
           stream.on('error', done);
         })
-        .catch(done);
+        .then(done, done);
     });
 
     it('should emit an `end` event when closing the stream', function(done) {
@@ -171,13 +169,9 @@ describe('Information Reporting', function() {
             stream.close();
           });
 
-          stream.on('end', function() {
-            done();
-          });
-
           stream.on('error', done);
         })
-        .catch(done);
+        .then(done, done);
     });
   });
 
