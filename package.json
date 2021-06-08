@@ -15,9 +15,6 @@
   "bugs": {
     "url": "https://github.com/moleike/node-lwm2m/issues"
   },
-  "engines": {
-    "node": ">=6"
-  },
   "scripts": {
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
     "test": "nyc --reporter=text node_modules/mocha/bin/mocha --recursive --exit",
@@ -30,14 +27,14 @@
   },
   "dependencies": {
     "coap": "^0.21.0",
-    "debug": "^4.1.1",
-    "readable-stream": "^3.4.0"
+    "debug": "^4.3.1",
+    "readable-stream": "^3.6.0"
   },
   "devDependencies": {
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.1.0",
     "documentation": "11.0.0",
-    "eslint": "^5.6.0",
-    "mocha": "^6.1.4",
+    "eslint": "^5.16.0",
+    "mocha": "^6.2.3",
     "nyc": "^14.1.1",
     "should": "^13.2.3"
   },
