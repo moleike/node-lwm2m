@@ -1,16 +1,12 @@
 # node-lwm2m
 
-[![build status][travis-image]][travis-url]
+[![build][build-badge]][build-url]
 [![coverage status][coveralls-image]][coveralls-url]
 [![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/node-lwm2m/Lobby)
 
-[travis-image]: https://img.shields.io/travis/moleike/node-lwm2m/develop.svg
+[build-badge]: https://github.com/moleike/node-lwm2m/actions/workflows/node.js.yml/badge.svg
 
-[travis-url]: https://travis-ci.org/moleike/node-lwm2m
-
-[appveyor-image]: https://img.shields.io/appveyor/ci/moleike/node-lwm2m/develop.svg
-
-[appveyor-url]: https://ci.appveyor.com/project/moleike/node-lwm2m
+[build-url]: https://github.com/moleike/node-lwm2m/actions/workflows/node.js.yml
 
 [coveralls-url]: https://coveralls.io/github/moleike/node-lwm2m?branch=develop
 
