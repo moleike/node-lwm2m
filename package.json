@@ -16,7 +16,7 @@
     "url": "https://github.com/moleike/node-lwm2m/issues"
   },
   "scripts": {
-    "lint": "eslint --ignore-path .gitignore '**/*.js'",
+    "lint": "eslint --ignore-path .gitignore \"**/*.js\"",
     "test": "nyc --reporter=text node_modules/mocha/bin/mocha --recursive --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "doc": "documentation readme ./lib/index.js --markdown-toc --section=API",
